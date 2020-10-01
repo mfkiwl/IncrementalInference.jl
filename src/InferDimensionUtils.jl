@@ -390,12 +390,11 @@ function getCliqSiblingsPriorityInitOrder(tree::AbstractBayesTree,
     with_logger(logger) do
       @info "getCliqSiblingsPriorityInitOrder, idx=$idx of $len, $(cliqd.frontalIDs[1]) length solvableDims=$(length(cliqd.solvableDims.data))"
     end
-    flush(logger.stream)
     sidims = fetchCliqSolvableDims(sibs[idx])
     sidx[idx] = sibs[idx].index
     tdims[idx] = sum(collect(values(sidims)))
     with_logger(logger) do
-      @info "getCliqSiblingsPriorityInitOrder, finished idx=$idx of $len, length solvableDims=$(length(cliqd.solvableDims.data))"
+      @info "getCliqSiblingsPriorityInitOrder, finished idx=$idx of $len, tdim=$(tdims[idx]), length solvableDims=$(length(cliqd.solvableDims.data))"
     end
     flush(logger.stream)
   end
