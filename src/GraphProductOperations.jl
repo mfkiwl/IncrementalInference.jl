@@ -110,13 +110,19 @@ function productbelief( dfg::AbstractDFG,
     pGM = prodmultipleonefullpartials(dens, partials, Ndims, N, manis)
   elseif lennonp == 0 && lenpart >= 1
     # only partials
-    denspts = getPoints(getKDE(dfg, vertlabel))
+    denspts = getPoints(getBelief(dfg, vertlabel))
     Ndims = size(denspts,1)
     with_logger(logger) do
       @info "[$(lennonp)x$(lenpart)p,d$(Ndims),N$(N)],"
     end
     dummy = AMP.manikde!(rand(Ndims,N), ones(Ndims), manis) # [1.0] # TODO -- reuse memory rather than rand here
-    pGM = deepcopy(denspts)
+    # resize for #1013
+    if size(denspts,2) < N
+      pGM = zeros(size(denspts,1),N)
+      pGM[:,1:size(denspts,2)] .= denspts
+    else
+      pGM = deepcopy(denspts)
+    end
     productpartials!(pGM, dummy, partials, manis)
   # elseif lennonp == 0 && lenpart == 1
   #   info("[prtl]")
