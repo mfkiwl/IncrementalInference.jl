@@ -21,6 +21,8 @@ function prodmultiplefullpartials(dens::Vector{BallTreeDensity},
   pGM = AMP.manifoldProduct(dens, manis, Niter=1) |> getPoints
 
   # whats up with this?
+  # full and partial density is taken in two stages, so dens product must be 
+  # readded for second stage
   for (dimnum,pp) in partials
     push!(pp, AMP.manikde!(pGM[dimnum:dimnum,:], (manis[dimnum],) ))
   end
