@@ -437,12 +437,18 @@ function addLikelihoodPriorCommon!( subfg::AbstractDFG,
   # find if any orphaned variables exist
   for (lbl, msgpr) in msg.jointmsg.priors
     # don't add numerical gauge reference unless absolutely necessary
-    if msg.hasPriors || 0 == length(ls(subfg, lbl))
+    # test if priors lower down in tree || unconstrained variable || child info would be lost
+    # FIXME, consolidate with IIF #1010
+    # until 1010, a bypass is needed to ensure upward info is not lost
+    upwardinfobypass =  getSolverParams(subfg).useMsgLikelihoods && 
+                        0 == length(msg.jointmsg.relatives) &&
+                        1 == length(msg.jointmsg.priors)
+    #
+    if msg.hasPriors || 0 == length(ls(subfg, lbl)) || upwardinfobypass
       # finally add the single AbstractPrior from LikelihoodMessage
       addFactor!(subfg, [lbl], msgpr, graphinit=false, tags=tags__)
     end
   end
-
   
   # # find max dimension variable, which also has highest biadjacency
   # topCandidate = _calcCandidatePriorBest(subfg, msg.belief)
