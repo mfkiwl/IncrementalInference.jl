@@ -2,7 +2,7 @@ using AMD
 using IncrementalInference
 using Test
 
-@testset "Test mcs, lexbfs, and rcm orderings" begin
+@testset "Test mcs, rcm , and mmd orderings" begin
 
 fg = generateGraph_Kaess(graphinit=false)
 
