@@ -52,13 +52,16 @@ function getEliminationOrder(
     @warn "Integration via AMD.ccolamd under development and replaces pre-Julia 1.9 direct ccall approach." maxlog=5
   elseif ordering == :mcs
     # maximum cardinality search
-    p, _ = CliqueTrees.permutation(A'A, CliqueTrees.MCS())
+    A = adjMat
+    p, _ = CliqueTrees.permutation(A'A; alg=CliqueTrees.MCS())
   elseif ordering == :rcm
     # reverse Cuthill-Mckee
-    p, _ = CliqueTrees.permutation(A'A, CliqueTrees.RCM())
+    A = adjMat
+    p, _ = CliqueTrees.permutation(A'A; alg=CliqueTrees.RCM())
   elseif ordering == :mmd
     # multiple minimum degree
-    p, _ = CliqueTrees.permutation(A'A, CliqueTrees.MMD())
+    A = adjMat
+    p, _ = CliqueTrees.permutation(A'A; alg=CliqueTrees.MMD())
   else
     @error("getEliminationOrder -- cannot do the requested ordering $(ordering)")
   end
