@@ -50,6 +50,15 @@ function getEliminationOrder(
       # cons[findall(x -> x in constraints, permuteds)] .= 1
       # p = Ccolamd.ccolamd(adjMat, cons)
     @warn "Integration via AMD.ccolamd under development and replaces pre-Julia 1.9 direct ccall approach." maxlog=5
+  elseif ordering == :mcs
+    # maximum cardinality search
+    p, _ = CliqueTrees.permutation(A'A, CliqueTrees.MCS())
+  elseif ordering == :rcm
+    # reverse Cuthill-Mckee
+    p, _ = CliqueTrees.permutation(A'A, CliqueTrees.RCM())
+  elseif ordering == :mmd
+    # multiple minimum degree
+    p, _ = CliqueTrees.permutation(A'A, CliqueTrees.MMD())
   else
     @error("getEliminationOrder -- cannot do the requested ordering $(ordering)")
   end
