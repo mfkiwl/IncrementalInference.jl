@@ -86,6 +86,13 @@ x2_val_ref = sl(getVariable(fg, :x2) |> getTimestamp |> DateTime |> datetime2uni
 x3_val_ref = sl(getVariable(fg, :x3) |> getTimestamp |> DateTime |> datetime2unix)
 
 
+# sanity check that the backward problem is runs through
+oder_.backwardProblem.u0 .= [0.049788]
+retcode = DifferentialEquations.solve(oder_.backwardProblem)
+
+@test isapprox(1, retcode.u[end][1]; atol=1e-4)
+
+
 ## one layer wrapped API test through IIFExt to DiffEq
 
 f = getFactor(fg, intersect(ls(fg,:x0),ls(fg,:x1))[1] )
