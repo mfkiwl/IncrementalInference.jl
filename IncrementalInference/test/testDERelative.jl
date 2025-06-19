@@ -86,7 +86,7 @@ x2_val_ref = sl(getVariable(fg, :x2) |> getTimestamp |> DateTime |> datetime2uni
 x3_val_ref = sl(getVariable(fg, :x3) |> getTimestamp |> DateTime |> datetime2unix)
 
 
-# sanity check that the backward problem is runs through
+# sanity check that the backward problem runs through
 oder_.backwardProblem.u0 .= [0.049788]
 retcode = DifferentialEquations.solve(oder_.backwardProblem)
 
