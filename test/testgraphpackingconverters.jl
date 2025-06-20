@@ -46,17 +46,17 @@ f2 = addFactor!(fg, [:x1; :x2], lc)
 @testset "Testing conversion to packed function node data structure and back" begin
 ##
 
-topack = getSolverData(f1)
-dd = convert(PackedFunctionNodeData{PackedPrior},topack)
-upd = reconstFactorData(fg, [:x1;], FunctionNodeData{CommonConvWrapper{Prior}}, dd)
+topack = DFG.getObservation(f1)
+dd = DFG.packObservation(topack)
+upd = DFG.unpack(dd)
 
-@test compare(topack, upd)
+@test topack == upd
 
-topack = getSolverData(f2)
-dd =  convert(IncrementalInference.PackedFunctionNodeData{PackedLinearRelative},topack)
-upd = reconstFactorData(fg, [:x1;:x2], IncrementalInference.FunctionNodeData{CommonConvWrapper{LinearRelative}}, dd)
+topack = DFG.getObservation(f2)
+dd =  DFG.packObservation(topack)
+upd = DFG.unpack(dd)
 
-@test compare(topack, upd)
+@test topack == upd
 
 ##
 end
@@ -64,12 +64,12 @@ end
 @testset "Testing conversion to packed variable node data structure and back" begin
 ##
 
-dat = getSolverData(getVariable(fg,:x1))
+dat = getVariableState(getVariable(fg,:x1))
 
 # dat.BayesNetVertID
 
-pd = packVariableNodeData(dat)
-unpckd = unpackVariableNodeData(pd)
+pd = packVariableState(dat)
+unpckd = unpackVariableState(pd)
 
 @test compareFields(dat, unpckd, skip=[:variableType])
 @test compareFields(getVariableType(dat), getVariableType(unpckd))

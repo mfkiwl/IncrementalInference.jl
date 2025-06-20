@@ -65,9 +65,11 @@ end
     $SIGNATURES
 Get the CommonConvWrapper for this factor.
 """
-_getCCW(gfnd::GenericFunctionNodeData) = gfnd.fnc
-_getCCW(fct::DFGFactor) = getSolverData(fct) |> _getCCW
-_getCCW(dfg::AbstractDFG, lbl::Symbol) = getFactor(dfg, lbl) |> _getCCW
+function _getCCW(gfnd::GenericFunctionNodeData)
+  error("_getCCW(gfnd::GenericFunctionNodeData) is deprecated, use DFG.getCache instead.")
+end
+_getCCW(fct::DFGFactor) = DFG.getCache(fct) #getVariableState(fct) |> _getCCW
+_getCCW(dfg::AbstractDFG, lbl::Symbol) = DFG.getCache(getFactor(dfg, lbl)) #getFactor(dfg, lbl) |> _getCCW
 
 DFG.getFactorType(ccw::CommonConvWrapper) = ccw.usrfnc!
 
@@ -172,7 +174,7 @@ function setfreeze!(dfg::AbstractDFG, sym::Symbol)
     return nothing
   end
   vert = DFG.getVariable(dfg, sym)
-  data = getSolverData(vert)
+  data = getVariableState(vert)
   data.ismargin = true
   return nothing
 end
@@ -494,7 +496,7 @@ function getFactorsAmongVariablesOnly(
     # now check if those factors have already been added
     for fct in prefcts
       vert = DFG.getFactor(dfg, fct)
-      if !getSolverData(vert).potentialused
+      if !DFG.getFactorState(vert).potentialused
         push!(almostfcts, fct)
       end
     end
@@ -550,7 +552,7 @@ function setPPE!(
   newPPEVal::T = calcPPE(variable; ppeType = ppeType, solveKey = solveKey),
 ) where {T <: AbstractPointParametricEst}
   #
-  # vnd = getSolverData(variable, solveKey)
+  # vnd = getVariableState(variable, solveKey)
 
   #TODO in the future one can perhaps populate other solver data types here by looking at the typeof ppeDict entries
   getPPEDict(variable)[solveKey] = newPPEVal

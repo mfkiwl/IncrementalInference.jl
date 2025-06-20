@@ -16,9 +16,7 @@ abstract type MessageType end
 struct NonparametricMessage <: MessageType end
 struct ParametricMessage <: MessageType end
 
-abstract type PackedSamplableBelief end
-
-StructTypes.StructType(::Type{<:PackedSamplableBelief}) = StructTypes.UnorderedStruct()
+using DistributedFactorGraphs: PackedSamplableBelief
 
 const SamplableBelief = Union{
   <:Distributions.Distribution,
@@ -89,7 +87,7 @@ function TreeBelief(vnd::VariableNodeData{T}, solvDim::Real = 0) where {T}
 end
 
 function TreeBelief(vari::DFGVariable, solveKey::Symbol = :default; solvableDim::Real = 0)
-  return TreeBelief(getSolverData(vari, solveKey), solvableDim)
+  return TreeBelief(getVariableState(vari, solveKey), solvableDim)
 end
 #
 

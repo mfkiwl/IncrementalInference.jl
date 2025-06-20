@@ -403,7 +403,7 @@ function identifyFirstEliminatedSeparator(
   dfg::AbstractDFG,
   elimorder::Vector{Symbol},
   firvert::DFGVariable,
-  Sj = getSolverData(firvert).separator,
+  Sj = getVariableState(firvert).separator,
 )::DFGVariable
   #
   firstelim = (2^(Sys.WORD_SIZE - 1) - 1)
@@ -440,7 +440,7 @@ function newPotential(
 ) where {G <: AbstractDFG}
   firvert = DFG.getVariable(dfg, var)
   # no parent
-  if (length(getSolverData(firvert).separator) == 0)
+  if (length(getVariableState(firvert).separator) == 0)
     # if (length(getCliques(tree)) == 0)
     # create new root
     addClique!(tree, dfg, var)
@@ -451,7 +451,7 @@ function newPotential(
     # end
   else
     # find parent clique Cp that containts the first eliminated variable of Sj as frontal
-    Sj = getSolverData(firvert).separator
+    Sj = getVariableState(firvert).separator
     felbl = identifyFirstEliminatedSeparator(dfg, elimorder, firvert, Sj).label
     # get clique id of first eliminated frontal
     CpID = tree.frontals[felbl]
@@ -871,8 +871,12 @@ function resetData!(vdata::VariableNodeData)
 end
 
 function resetData!(vdata::FunctionNodeData)
-  vdata.eliminated = false
-  vdata.potentialused = false
+  error("resetData!(vdata::FunctionNodeData) is deprecated, use resetData!(state::FactorState) instead")
+end
+
+function resetData!(state::DFG.FactorState)
+  state.eliminated = false
+  state.potentialused = false
   return nothing
 end
 
@@ -884,10 +888,10 @@ can be constructed.
 """
 function resetFactorGraphNewTree!(dfg::AbstractDFG)
   for v in DFG.getVariables(dfg)
-    resetData!(getSolverData(v))
+    resetData!(getVariableState(v))
   end
   for f in DFG.getFactors(dfg)
-    resetData!(getSolverData(f))
+    resetData!(DFG.getFactorState(f))
   end
   return nothing
 end
@@ -964,7 +968,7 @@ Notes:
 - used by Bayes tree clique logic.
 - similar method in DFG
 """
-isInitialized(cliq::TreeClique) = getSolverData(cliq).initialized
+isInitialized(cliq::TreeClique) = getSolverData(cliq).initialized #FIXME where is this definded, looks like dead code?
 
 function appendUseFcts!(usefcts, lblid::Symbol, fct::DFGFactor)
   # fid::Symbol )
@@ -999,13 +1003,13 @@ function getCliqFactorsFromFrontals(
     # usefcts = Int[]
     for fctid in ls(fgl, frsym)
       fct = getFactor(fgl, fctid)
-      if !unused || !getSolverData(fct).potentialused
+      if !unused || !DFG.getFactorState(fct).potentialused
         loutn = ls(fgl, fctid; solvable = solvable)
         # deal with unary factors
         if length(loutn) == 1
           union!(usefcts, Symbol[Symbol(fct.label);])
           # appendUseFcts!(usefcts, loutn, fct) # , frsym)
-          getSolverData(fct).potentialused = true
+          DFG.getFactorState(fct).potentialused = true
         end
         # deal with n-ary factors
         for sep in loutn
@@ -1015,7 +1019,7 @@ function getCliqFactorsFromFrontals(
           insep = sep in allids
           if !inseparator || insep
             union!(usefcts, Symbol[Symbol(fct.label);])
-            getSolverData(fct).potentialused = true
+            DFG.getFactorState(fct).potentialused = true
             if !insep
               @debug "cliq=$(cliq.id) adding factor that is not in separator, $sep"
             end
@@ -1062,7 +1066,7 @@ function setCliqPotentials!(
   fcts = map(x -> getFactor(dfg, x), fctsyms)
   getCliqueData(cliq).partialpotential = map(x -> isPartial(x), fcts)
   for fct in fcts
-    getSolverData(fct).potentialused = true
+    DFG.getFactorState(fct).potentialused = true
   end
 
   @debug "finding all frontals for down WIP"
