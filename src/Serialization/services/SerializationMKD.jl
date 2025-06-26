@@ -43,7 +43,7 @@ function parchDistribution(mkd::ManifoldKernelDensity)
 end
 
 # Data converters for MKD
-function packDistribution(mkd::ManifoldKernelDensity)
+function DFG.packDistribution(mkd::ManifoldKernelDensity)
   #
   pts = getPoints(mkd)
 
@@ -58,7 +58,7 @@ function packDistribution(mkd::ManifoldKernelDensity)
   )
 end
 
-function unpackDistribution(dtr::PackedManifoldKernelDensity)
+function DFG.unpackDistribution(dtr::PackedManifoldKernelDensity)
   # find InferenceVariable type from string (anything Manifolds.jl?)
   M = DFG.getTypeFromSerializationModule(dtr.varType) |> getManifold
   vecP = [AMP.makePointFromCoords(M, pt) for pt in dtr.pts]

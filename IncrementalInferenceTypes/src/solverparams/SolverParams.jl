@@ -11,7 +11,7 @@ Dev Notes
 """
 Base.@kwdef mutable struct SolverParams <: DFG.AbstractParams
   dimID::Int = 0
-  reference::NothingUnion{Dict{Symbol, Tuple{Symbol, Vector{Float64}}}} = nothing
+  reference::Union{Nothing, Dict{Symbol, Tuple{Symbol, Vector{Float64}}}} = nothing
   stateless::Bool = false
   """ Quasi fixed length """
   qfl::Int = (2^(Sys.WORD_SIZE - 1) - 1)
@@ -45,7 +45,7 @@ Base.@kwdef mutable struct SolverParams <: DFG.AbstractParams
   """ should Distributed.jl tree solve compute features be used """
   multiproc::Bool = 1 < nprocs()    
   """ "/tmp/caesar/logs/$(now())" # unique temporary file storage location for a solve """
-  logpath::String = joinpath(tempdir(),"caesar","logs","$(now(UTC))") 
+  logpath::String = joinpath(tempdir(),"caesar","logs","$(now(DFG.UTC))") 
   """ default to graph-based initialization of variables """
   graphinit::Bool = true            
   """ init variables on the tree """
@@ -76,6 +76,9 @@ end
 
 StructTypes.omitempties(::Type{SolverParams}) = (:reference,)
 
-
-convert(::Type{SolverParams}, ::NoSolverParams) = SolverParams()
 #
+Base.convert(::Type{SolverParams}, ::NoSolverParams) = begin 
+  @warn "FIXME Why converting NoSolverParams to SolverParams?"
+  SolverParams()
+end
+

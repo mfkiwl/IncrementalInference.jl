@@ -142,16 +142,17 @@ function transferUpdateSubGraph!(
   end
 
   # transfer specific fields into dest from src
-  for var in (x -> getVariable(src, x)).(syms)
-    # copy not required since a broadcast is used internally
-    updateVariableSolverData!(
+  @time for var in (x -> getVariable(src, x)).(syms)
+    # NOTE compared copytoVariableState! vs surgical updateVariableSolverData!
+    # updateVariableSolverData! 0.000626 seconds (1.11 k allocations: 114.289 KiB)
+    # copytoVariableState! 0.000099 seconds (315 allocations: 27.758 KiB)
+    DFG.copytoVariableState!(
       dest,
-      var,
+      getLabel(var),
       solveKey,
-      false,
-      [:val; :bw; :infoPerCoord; :solvedCount; :initialized];
-      warn_if_absent = false,
+      getVariableState(var, solveKey),
     )
+
     if updatePPE
       # create ppe on new key using defaults, TODO improve
       if haskey(getPPEDict(var), solveKey)

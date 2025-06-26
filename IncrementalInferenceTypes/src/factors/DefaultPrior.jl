@@ -1,0 +1,29 @@
+"""
+$(TYPEDEF)
+
+Default prior on all dimensions of a variable node in the factor graph.  `Prior` is
+not recommended when non-Euclidean dimensions are used in variables.
+"""
+struct Prior{T} <: AbstractPrior
+  Z::T
+end
+DFG.getManifold(pr::Prior) = TranslationGroup(getDimension(pr.Z))
+
+"""
+$(TYPEDEF)
+
+Serialization type for Prior.
+"""
+Base.@kwdef mutable struct PackedPrior <: AbstractPackedFactor
+  Z::PackedSamplableBelief
+end
+
+function DFG.pack(d::Prior)
+  return PackedPrior(DFG.packDistribution(d.Z))
+end
+
+function DFG.unpack(d::PackedPrior)
+  return Prior(DFG.unpackDistribution(d.Z))
+end
+
+#

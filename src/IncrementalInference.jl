@@ -102,6 +102,9 @@ const BeliefArray{T} = Union{<:AbstractMatrix{<:T}, <:Adjoint{<:T, AbstractMatri
 # FIXME, remove this and let the user do either import or const definitions
 export KDE, AMP, DFG, FSM, IIF
 
+# include("../IncrementalInferenceTypes/src/IncrementalInferenceTypes.jl")
+@reexport using IncrementalInferenceTypes
+
 # TODO temporary for initial version of on-manifold products
 KDE.setForceEvalDirect!(true)
 
@@ -116,7 +119,6 @@ include("ExportAPI.jl")
 
 
 # regular
-include("entities/SolverParams.jl")
 
 include("entities/HypoRecipe.jl")
 include("entities/CalcFactor.jl")
@@ -173,7 +175,6 @@ include("services/TreeBasedInitialization.jl")
 
 # included variables of IIF, easy to extend in user's context
 include("Variables/DefaultVariables.jl")
-include("Variables/Circular.jl")
 
 # included factors, see RoME.jl for more examples
 include("Factors/GenericFunctions.jl")

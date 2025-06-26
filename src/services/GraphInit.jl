@@ -448,7 +448,13 @@ function resetInitialValues!(
   for vs in varList
     vnd = getVariableState(getVariable(src, vs), initKey)
     # guess we definitely want to use copy to preserve the initKey memory
-    updateVariableSolverData!(dest, vs, vnd, solveKey, true; warn_if_absent = false)
+    # updateVariableSolverData!(dest, vs, vnd, solveKey, true; warn_if_absent = false)
+    DFG.copytoVariableState!(
+      dest,
+      vs,
+      solveKey,
+      vnd,
+    )    
   end
   return dest
 end
