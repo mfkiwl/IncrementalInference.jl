@@ -20,14 +20,14 @@ export
     Position4,
     ContinuousScalar,
     ContinuousEuclid,
-    Ciruclar
+    Circular
 
 #export factor types
 export 
     Prior,
     PackedPrior,
-    LinearRelative,
-    PackedLinearRelative,
+    # LinearRelative,
+    # PackedLinearRelative,
     CircularCircular,
     PriorCircular,
     PackedCircularCircular,
@@ -56,7 +56,7 @@ include("variables/DefaultVariableTypes.jl")
 # Factor Definitions
 include("factors/DefaultPrior.jl")
 #FIXME maybe upgrade linear relative to this
-include("factors/LinearRelative.jl")
+# include("factors/LinearRelative.jl")
 include("factors/Circular.jl")
 
 # Distribution Serialization

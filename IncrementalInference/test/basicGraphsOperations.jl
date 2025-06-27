@@ -26,7 +26,7 @@ end
 ##
 
 pts = [randn(1) for _ in 1:100]
-varT = LinearRelative{1}
+varT = LinearRelative(Normal(1.0))
 manikde!(varT, pts)
 
 

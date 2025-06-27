@@ -345,7 +345,7 @@ function evalPotentialSpecific(
   maxlen = _beforeSolveCCW!(ccwl, variables, sfidx, N; solveKey, needFreshMeasurements, measurement)
   
   # Check which variables have been initialized
-  isinit = map(x -> isInitialized(x), variables)
+  isinit = map(x -> isInitialized(x, solveKey), variables)
   
   # assemble how hypotheses should be computed
   # nullSurplus see #1517

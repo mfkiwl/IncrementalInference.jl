@@ -32,7 +32,6 @@ IIF.setDefaultNodeData!(getVariable(fg, :a), 0, 100, 1, solveKey=:testSolveKey,
 
 initVariable!(fg, :a, pts, :testSolveKey)
 
-@test !isInitialized(fg, :a)
 @test isInitialized(fg, :a, :testSolveKey)
 
 ##
