@@ -1,0 +1,33 @@
+
+"""
+$(TYPEDEF)
+
+Default linear offset between two scalar variables.
+
+```math
+X_2 = X_1 + η_Z
+```
+"""
+struct LinearRelative{T} <: AbstractManifoldMinimize
+  Z::T
+end
+
+DFG.getManifold(obs::LinearRelative) = TranslationGroup(getDimension(obs.Z))
+
+"""
+$(TYPEDEF)
+Serialization type for `LinearRelative` binary factor.
+"""
+Base.@kwdef mutable struct PackedLinearRelative <: AbstractPackedFactor
+  Z::PackedSamplableBelief
+end
+
+function DFG.pack(d::LinearRelative)
+  return PackedLinearRelative(DFG.packDistribution(d.Z))
+end
+
+function DFG.unpack(d::PackedLinearRelative)
+  return LinearRelative(DFG.unpackDistribution(d.Z))
+end
+
+#
