@@ -13,7 +13,7 @@ using Test
 
 td = Uniform()
 
-ptd = convert(String, td) # TODO, PackedSamplableBelief
+ptd = convert(String, td) # TODO, PackedBelief
 utd = convert(SamplableBelief, td)
 
 @test td.a - utd.a |> abs < 1e-10
@@ -87,7 +87,7 @@ end
 mkd = manikde!(TranslationGroup(2), [randn(2) for _ in 1:100])
 
 # convert up and down
-st = convert(String, mkd) # TODO, PackedSamplableBelief
+st = convert(String, mkd) # TODO, PackedBelief
 upk = convert(SamplableBelief, st)
 
 # and check the basics

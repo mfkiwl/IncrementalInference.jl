@@ -9,7 +9,7 @@ Notes
   - Future TBD, consider using `AMP.getManifoldPartial` for more general abstraction.
 """
 struct PartialPrior{T <: SamplableBelief, P <: Tuple} <: AbstractPrior
-  varType::Type{<:InferenceVariable}
+  varType::Type{<:VariableStateType}
   Z::T
   partial::P
 end
@@ -29,13 +29,13 @@ Serialization type for `PartialPrior`.
 """
 Base.@kwdef struct PackedPartialPrior <: AbstractPackedFactor
   varType::String
-  Z::PackedSamplableBelief
+  Z::PackedBelief
   partials::Vector{Int}
 end
 
 function convert(::Type{PackedPartialPrior}, d::PartialPrior)
-  return PackedPartialPrior(DFG.typeModuleName(d.varType), convert(PackedSamplableBelief, d.Z), [d.partial...;])
-  # return PackedPartialPrior(convert(PackedSamplableBelief, d.Z), [d.partial...;])
+  return PackedPartialPrior(DFG.typeModuleName(d.varType), convert(PackedBelief, d.Z), [d.partial...;])
+  # return PackedPartialPrior(convert(PackedBelief, d.Z), [d.partial...;])
 end
 function convert(::Type{PartialPrior}, d::PackedPartialPrior)
   return PartialPrior(DFG.getTypeFromSerializationModule(d.varType), convert(SamplableBelief, d.Z),(d.partials...,))

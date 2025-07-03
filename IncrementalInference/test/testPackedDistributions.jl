@@ -13,7 +13,7 @@ ctg = Categorical(5)
 
 packed = packDistribution(ctg)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa IncrementalInference.PackedCategorical
 
 upck = unpackDistribution(packed)
@@ -32,7 +32,7 @@ nor = Normal()
 
 packed = packDistribution(nor)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa PackedNormal
 
 upck = unpackDistribution(packed)
@@ -50,7 +50,7 @@ end
 mv = MvNormal([0.0;1.0], [1 0.1; 0.1 1])
 packed = packDistribution(mv)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa PackedFullNormal
 
 upck = unpackDistribution(packed)
@@ -68,7 +68,7 @@ end
 mv = MvNormal([0.0; 1.0], [4.0; 4.0])
 packed = packDistribution(mv)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa PackedDiagNormal
 
 upck = unpackDistribution(packed)
@@ -85,7 +85,7 @@ end
 mv = MvNormal([1 0.1; 0.1 1])
 packed = packDistribution(mv)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa PackedZeroMeanFullNormal
 
 upck = unpackDistribution(packed)
@@ -103,7 +103,7 @@ end
 mv = MvNormal([4.0;4.0])
 packed = packDistribution(mv)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa PackedZeroMeanDiagNormal
 
 upck = unpackDistribution(packed)
@@ -123,7 +123,7 @@ end
 bss = AliasingScalarSampler([1.0;2.0], [0.6;0.4])
 packed = packDistribution(bss)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa IncrementalInference.PackedAliasingScalarSampler
 
 upck = unpackDistribution(packed)
@@ -148,7 +148,7 @@ pts = [randn(2) for _ in 1:50]
 mkd = manikde!(T, pts)
 packed = packDistribution(mkd)
 
-@test packed isa PackedSamplableBelief
+@test packed isa PackedBelief
 @test packed isa IncrementalInference.PackedManifoldKernelDensity
 
 upck = unpackDistribution(packed)
@@ -167,7 +167,7 @@ end
 r = Rayleigh(1.1)
 r_ = packDistribution(r)
 
-@test r_ isa PackedSamplableBelief
+@test r_ isa PackedBelief
 @test r_ isa PackedRayleigh
 
 r__ = unpackDistribution(r_)

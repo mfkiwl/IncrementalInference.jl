@@ -15,7 +15,7 @@ $(TYPEDEF)
 Serialization type for Prior.
 """
 Base.@kwdef mutable struct PackedPrior <: AbstractPackedFactor
-  Z::PackedSamplableBelief
+  Z::PackedBelief
 end
 
 function DFG.pack(d::Prior)

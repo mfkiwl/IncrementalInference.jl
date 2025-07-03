@@ -72,10 +72,10 @@ export CSMHistory,
 
   # general types for softtyping of variable nodes
   BeliefArray,
-  InferenceVariable,
+  VariableStateType,
   ContinuousScalar,
   SamplableBelief,
-  PackedSamplableBelief,
+  PackedBelief,
   Prior,
   PackedPrior,
   MsgPrior,

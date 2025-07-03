@@ -118,7 +118,7 @@ getFactorDim(fg::AbstractDFG, fctid::Symbol) = getFactorDim(getFactor(fg, fctid)
 
 # extend convenience function (Matrix or Vector{P})
 function manikde!(
-  variableType::Union{InstanceType{<:InferenceVariable}, InstanceType{<:AbstractFactor}},
+  variableType::Union{InstanceType{<:VariableStateType}, InstanceType{<:AbstractFactor}},
   pts::AbstractVector{P};
   kw...,
 ) where {P <: Union{<:AbstractArray, <:Number, <: ArrayPartition}}
@@ -130,7 +130,7 @@ function manikde!(
 end
 
 function manikde!(
-  varT::InstanceType{<:InferenceVariable},
+  varT::InstanceType{<:VariableStateType},
   pts::AbstractVector{<:Tuple};
   kw...,
 )
@@ -212,8 +212,8 @@ function fifoFreeze!(dfg::AbstractDFG)
   return nothing
 end
 
-DFG.getPoint(typ::InferenceVariable, w...; kw...) = getPoint(typeof(typ), w...; kw...)
-function DFG.getCoordinates(typ::InferenceVariable, w...; kw...)
+DFG.getPoint(typ::VariableStateType, w...; kw...) = getPoint(typeof(typ), w...; kw...)
+function DFG.getCoordinates(typ::VariableStateType, w...; kw...)
   return getCoordinates(typeof(typ), w...; kw...)
 end
 
@@ -238,7 +238,7 @@ Related
 """
 function calcPPE(
   var::DFGVariable,
-  varType::InferenceVariable = getVariableType(var);
+  varType::VariableStateType = getVariableType(var);
   ppeType::Type{<:MeanMaxPPE} = MeanMaxPPE,
   solveKey::Symbol = :default,
   ppeKey::Symbol = solveKey

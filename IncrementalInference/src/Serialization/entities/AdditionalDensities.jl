@@ -1,5 +1,5 @@
 
-Base.@kwdef struct PackedManifoldKernelDensity <: PackedSamplableBelief
+Base.@kwdef struct PackedManifoldKernelDensity <: PackedBelief
   _type::String = "IncrementalInference.PackedManifoldKernelDensity"
   varType::String
   pts::Vector{Vector{Float64}}
@@ -8,7 +8,7 @@ Base.@kwdef struct PackedManifoldKernelDensity <: PackedSamplableBelief
   infoPerCoord::Vector{Float64} = zeros(length(pts[1]))
 end
 
-Base.@kwdef struct PackedAliasingScalarSampler <: PackedSamplableBelief
+Base.@kwdef struct PackedAliasingScalarSampler <: PackedBelief
   _type::String = "IncrementalInference.PackedAliasingScalarSampler"
   domain::Vector{Float64} = [0; 1.0]
   weights::Vector{Float64} = [0.5; 0.5]

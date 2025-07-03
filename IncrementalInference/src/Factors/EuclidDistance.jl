@@ -29,13 +29,13 @@ Serialization type for `EuclidDistance` binary factor.
 """
 Base.@kwdef mutable struct PackedEuclidDistance <: AbstractPackedFactor
   _type::String
-  Z::PackedSamplableBelief
+  Z::PackedBelief
 end
 
 function convert(::Type{PackedEuclidDistance}, d::EuclidDistance)
   return PackedEuclidDistance(
-    "/application/JuliaLang/PackedSamplableBelief",
-    convert(PackedSamplableBelief, d.Z),
+    "/application/JuliaLang/PackedBelief",
+    convert(PackedBelief, d.Z),
   )
 end
 

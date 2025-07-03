@@ -14,7 +14,7 @@ getVariableType(M::TranslationGroup{TypeParameter{Tuple{N}}}) where {N} = Contin
 function Base.convert(::Type{<:SamplableBelief}, ::Type{<:PackedManifoldKernelDensity})
   return ManifoldKernelDensity
 end
-function Base.convert(::Type{<:PackedSamplableBelief}, ::Type{<:ManifoldKernelDensity})
+function Base.convert(::Type{<:PackedBelief}, ::Type{<:ManifoldKernelDensity})
   return PackedManifoldKernelDensity
 end
 
@@ -49,7 +49,7 @@ function DFG.packDistribution(mkd::ManifoldKernelDensity)
 
   return PackedManifoldKernelDensity(
     "IncrementalInference.PackedManifoldKernelDensity",
-    # piggy back on InferenceVariable serialization rather than try serialize anything Manifolds.jl
+    # piggy back on VariableStateType serialization rather than try serialize anything Manifolds.jl
     DFG.typeModuleName(getVariableType(mkd.manifold)),
     [AMP.makeCoordsFromPoint(mkd.manifold, pt) for pt in pts],
     getBW(mkd.belief)[:, 1],
@@ -59,7 +59,7 @@ function DFG.packDistribution(mkd::ManifoldKernelDensity)
 end
 
 function DFG.unpackDistribution(dtr::PackedManifoldKernelDensity)
-  # find InferenceVariable type from string (anything Manifolds.jl?)
+  # find VariableStateType type from string (anything Manifolds.jl?)
   M = DFG.getTypeFromSerializationModule(dtr.varType) |> getManifold
   vecP = [AMP.makePointFromCoords(M, pt) for pt in dtr.pts]
   bw = length(dtr.bw) === 0 ? nothing : dtr.bw
@@ -79,7 +79,7 @@ function Base.convert(::Type{String}, mkd::ManifoldKernelDensity)
 end
 
 # Use general dispatch
-# Base.convert(::Type{<:PackedSamplableBelief}, mkd::ManifoldKernelDensity) = convert(String, mkd)
+# Base.convert(::Type{<:PackedBelief}, mkd::ManifoldKernelDensity) = convert(String, mkd)
 
 # make module specific
 # good references: 

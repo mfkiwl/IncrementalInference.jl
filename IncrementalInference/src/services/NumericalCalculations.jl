@@ -92,7 +92,7 @@ function _solveLambdaNumeric(
   hypoCalcFactor,
   residual::AbstractVector{<:Real},
   u0,#::AbstractVector{<:Real},
-  variableType::InferenceVariable,
+  variableType::VariableStateType,
   islen1::Bool = false,
 ) where {N_, F <: AbstractManifoldMinimize, S, T}
   #

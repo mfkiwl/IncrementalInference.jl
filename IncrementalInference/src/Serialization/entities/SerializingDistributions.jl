@@ -16,6 +16,6 @@ StringThemSamplableBeliefs = Union{
 }
 
 ## TODO, TBD
-# Base.@kwdef struct PackedDiscreteNonParametric <: PackedSamplableBelief
+# Base.@kwdef struct PackedDiscreteNonParametric <: PackedBelief
 #   _type::String        = "IncrementalInference.PackedDiscreteNonParametric"
 # end

@@ -19,7 +19,7 @@ $(TYPEDEF)
 Serialization type for `LinearRelative` binary factor.
 """
 Base.@kwdef mutable struct PackedLinearRelative <: AbstractPackedFactor
-  Z::PackedSamplableBelief
+  Z::PackedBelief
 end
 
 function DFG.pack(d::LinearRelative)

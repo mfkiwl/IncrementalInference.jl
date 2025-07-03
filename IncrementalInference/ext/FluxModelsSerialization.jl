@@ -99,7 +99,7 @@ function DFG.unpackDistribution(obj::PackedFluxModelsDistribution)
 end
 
 function Base.convert(
-  ::Union{Type{<:PackedSamplableBelief}, Type{<:PackedFluxModelsDistribution}},
+  ::Union{Type{<:PackedBelief}, Type{<:PackedFluxModelsDistribution}},
   obj::FluxModelsDistribution,
 )
   #

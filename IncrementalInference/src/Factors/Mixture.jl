@@ -168,14 +168,14 @@ Base.@kwdef mutable struct PackedMixture <: AbstractPackedFactor
   # store the packed type for later unpacking
   F_::String
   S::Vector{String}
-  components::Vector{PackedSamplableBelief}
-  diversity::PackedSamplableBelief
+  components::Vector{PackedBelief}
+  diversity::PackedBelief
 end
 
 function convert(::Type{<:PackedMixture}, obj::Mixture{N, F, S, T}) where {N, F, S, T}
-  allcomp = PackedSamplableBelief[]
+  allcomp = PackedBelief[]
   for val in obj.components
-    dtr_ = convert(PackedSamplableBelief, val)
+    dtr_ = convert(PackedBelief, val)
     # FIXME ON FIRE, likely to be difficult for non-standard "Samplable" types -- e.g. Flux models in RoME
     push!(allcomp, dtr_)
   end
@@ -186,7 +186,7 @@ function convert(::Type{<:PackedMixture}, obj::Mixture{N, F, S, T}) where {N, F,
     pm = convert(DFG.convertPackedType(obj.mechanics), obj.mechanics)
   end
   sT = string(typeof(pm))
-  dvst = convert(PackedSamplableBelief, obj.diversity)
+  dvst = convert(PackedBelief, obj.diversity)
   return PackedMixture(N, sT, string.(collect(S)), allcomp, dvst)
 end
 

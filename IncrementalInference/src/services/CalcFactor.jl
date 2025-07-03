@@ -240,7 +240,7 @@ Notes
 - `maxlen` is length of all (possibly resampled) `ARR` contained particles.
 - `Xi` is order sensitive.
 - for initialization, solveFor = Nothing.
-- `P = getPointType(<:InferenceVariable)`
+- `P = getPointType(<:VariableStateType)`
 """
 function _createVarValsAll(
   variables::AbstractVector{<:DFGVariable};

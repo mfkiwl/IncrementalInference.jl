@@ -33,10 +33,10 @@ end
 ## ===========================================================================================
 
 # NOTE part of new effort to overhaul the SamplableBelief serialization approach
-function convert(::Type{<:PackedSamplableBelief}, obj::StringThemSamplableBeliefs)
+function convert(::Type{<:PackedBelief}, obj::StringThemSamplableBeliefs)
   return packDistribution(obj)
 end
-convert(::Type{<:SamplableBelief}, obj::PackedSamplableBelief) = unpackDistribution(obj)
+convert(::Type{<:SamplableBelief}, obj::PackedBelief) = unpackDistribution(obj)
 
 ##===================================================================================
 

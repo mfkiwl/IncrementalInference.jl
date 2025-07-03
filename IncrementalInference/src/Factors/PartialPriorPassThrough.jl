@@ -28,7 +28,7 @@ end
 Required internal density to store its type
 """
 Base.@kwdef mutable struct PackedPartialPriorPassThrough <: AbstractPackedFactor
-  Z::PackedSamplableBelief # PackedHeatmapGridDensity
+  Z::PackedBelief # PackedHeatmapGridDensity
   partial::Vector{Int}
 end
 
@@ -43,7 +43,7 @@ function convert(
 )
   #
 
-  po = convert(PackedSamplableBelief, obj.Z)
+  po = convert(PackedBelief, obj.Z)
   return PackedPartialPriorPassThrough(po, Int[obj.partial...])
 end
 

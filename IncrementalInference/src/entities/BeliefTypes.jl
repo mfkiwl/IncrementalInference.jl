@@ -16,7 +16,7 @@ abstract type MessageType end
 struct NonparametricMessage <: MessageType end
 struct ParametricMessage <: MessageType end
 
-using DistributedFactorGraphs: PackedSamplableBelief
+using DistributedFactorGraphs: PackedBelief
 
 const SamplableBelief = Union{
   <:Distributions.Distribution,
@@ -42,7 +42,7 @@ Notes:
 - we want to send the joint, this is just to resolve consolidation #459 first.
 - Long term objective is single joint definition, likely called `LikelihoodMessage`.
 """
-struct TreeBelief{T <: InferenceVariable, P, M <: MB.AbstractManifold}
+struct TreeBelief{T <: VariableStateType, P, M <: MB.AbstractManifold}
   val::Vector{P}
   bw::Array{Float64, 2}
   infoPerCoord::Vector{Float64}
@@ -60,7 +60,7 @@ function TreeBelief(
   variableType::T = ContinuousScalar(),
   manifold = getManifold(variableType),
   solvableDim::Real = 0,
-) where {T <: InferenceVariable}
+) where {T <: VariableStateType}
   return TreeBelief(getPoints(p), getBW(p), ipc, variableType, manifold, solvableDim)
 end
 
@@ -71,17 +71,17 @@ function TreeBelief(
   variableType::T = ContinuousScalar(),
   manifold::M = getManifold(variableType),
   solvableDim::Real = 0,
-) where {P, T <: InferenceVariable, M <: MB.AbstractManifold}
+) where {P, T <: VariableStateType, M <: MB.AbstractManifold}
   return TreeBelief{T, P, M}(val, bw, ipc, variableType, manifold, solvableDim)
 end
 
-function TreeBelief(vnd::VariableNodeData{T}, solvDim::Real = 0) where {T}
+function TreeBelief(vnd::VariableNodeData, solvDim::Real = 0)
   return TreeBelief(
     vnd.val,
     vnd.bw,
     vnd.infoPerCoord,
     getVariableType(vnd),
-    getManifold(T),
+    getManifold(vnd),
     solvDim,
   )
 end
