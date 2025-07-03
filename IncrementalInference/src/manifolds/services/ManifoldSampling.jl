@@ -104,7 +104,7 @@ if more advanced sampling is required, the `getSample` function should be extend
 
 The default behavior for `getSample` is as follows:
 - The `SamplableBelief`` shall be in the field `Z` and that shall be enough to fully define the factor, i.e. `Z<:SamplableBelief` should be the only field.
-- Sampling on `<:AbstractManifoldMinimize` factors defined on Group Manifolds: 
+- Sampling on `<:RelativeObservation` factors defined on Group Manifolds: 
   - `getSample` normally returns a tangent vector at the identity element, however it should just match the custom factor definition.
 - Sampling on prior (`<:AbstractPrior`) factors : 
   - `getSample` must return a point on the manifold that matches the point representation of the variable.

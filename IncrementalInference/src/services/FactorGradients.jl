@@ -42,11 +42,7 @@ export checkGradientsToleranceMask, calcPerturbationFromVariable
 # T_pt_args[:] = [(T1::Type{<:VariableStateType}, point1); ...]
 # FORCED TO START AT EITHER :x1
 function _prepFactorGradientLambdas(
-  fct::Union{
-    <:AbstractRelativeMinimize,
-    # <:AbstractRelativeRoots,
-    <:AbstractManifoldMinimize,
-  },
+  fct::RelativeObservation,
   measurement,
   varTypes::Tuple,
   pts::Tuple;
@@ -135,10 +131,7 @@ function _prepFactorGradientLambdas(
 end
 
 function FactorGradientsCached!(
-  fct::Union{
-    <:AbstractRelativeMinimize,
-    <:AbstractManifoldMinimize,
-  },
+  fct::RelativeObservation,
   varTypes::Tuple,
   meas_single,
   pts::Tuple;

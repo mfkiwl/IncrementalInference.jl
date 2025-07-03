@@ -198,7 +198,7 @@ function computeAcrossHypothesis!(
           ccwl.partialDims,
         )
         # no calculate new proposal belief on kernels `allelements[count]`
-        _checkErrorCCWNumerics(ccwl, testshuffle)
+        # _checkErrorCCWNumerics(ccwl, testshuffle)
         if skipSolve
           @warn("skipping numerical solve operation")
         else

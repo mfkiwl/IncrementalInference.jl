@@ -8,7 +8,7 @@ Related
 
 [`Sphere1`](@ref), [`PriorSphere1`](@ref), [`Polar`](@ref), [`ContinuousEuclid`](@ref)
 """
-DFG.@defObservationType CircularCircular AbstractManifoldMinimize Manifolds.RealCircleGroup()
+DFG.@defObservationType CircularCircular RelativeObservation Manifolds.RealCircleGroup()
 
 
 """

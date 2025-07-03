@@ -30,7 +30,7 @@ Related
 [`approxDeconv`](@ref), [`_solveCCWNumeric!`](@ref)
 """
 function approxDeconv(
-  fcto::DFGFactor,
+  fcto::DFGFactor{<:Union{<:AbstractRelativeMinimize, <:PriorObservation}},
   ccw::CommonConvWrapper = _getCCW(fcto);
   N::Int = 100,
   measurement::AbstractVector = sampleFactor(ccw, N),
@@ -94,7 +94,14 @@ function approxDeconv(
     if fcttype isa AbstractManifoldMinimize
       error("Fix dispatch on AbstractManifoldMinimize")
     else
-      ts = _solveLambdaNumeric(fcttype, hypoObj, res_, measurement[idx], islen1)
+      ts = _solveLambdaNumeric(
+        fcttype,
+        hypoObj,
+        res_,
+        measurement[idx],
+        nothing, # not used here
+        islen1
+      )
       measurement[idx] = ts
     end
   end
@@ -106,8 +113,10 @@ function approxDeconv(
 end
 
 # TBD deprecate use of xDim
+#FIXME add trait to get AbstractManifoldMinimize functionality. 
+# Or better consolidate wiht previous approxDeconv function.
 function approxDeconv(
-  fcto::DFGFactor{<:AbstractManifoldMinimize},
+  fcto::DFGFactor{<:RelativeObservation},
   ccw::CommonConvWrapper = _getCCW(fcto);
   N::Int = 100,
   measurement::AbstractVector = sampleFactor(ccw, N),

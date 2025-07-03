@@ -72,7 +72,7 @@ export ManifoldFactor
 struct ManifoldFactor{
   M <: AbstractManifold, 
   T <: SamplableBelief
-} <: AbstractManifoldMinimize
+} <: RelativeObservation
   M::M
   Z::T
 end
@@ -106,7 +106,7 @@ end
 
 
 # Adjoints defined in ApproxManifoldProducts
-struct AdFactor{F <: AbstractManifoldMinimize} <: AbstractManifoldMinimize
+struct AdFactor{F <: RelativeObservation} <: RelativeObservation
   factor::F
 end
 

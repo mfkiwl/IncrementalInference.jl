@@ -298,11 +298,7 @@ function _setCCWDecisionDimsConv!(
   xDim::Int
 ) where {
   N_,
-  F <: Union{
-    AbstractManifoldMinimize,
-    AbstractRelativeMinimize,
-    AbstractPrior,
-  },
+  F <: AbstractFactorObservation,
   S,
   T,
 }

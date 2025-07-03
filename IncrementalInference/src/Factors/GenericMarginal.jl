@@ -3,7 +3,7 @@
 """
 $(TYPEDEF)
 """
-mutable struct GenericMarginal <: AbstractManifoldMinimize # AbstractRelativeRoots
+mutable struct GenericMarginal <: RelativeObservation # AbstractRelativeRoots
   Zij::Array{Float64, 1}
   Cov::Array{Float64, 1}
   W::Array{Float64, 1}

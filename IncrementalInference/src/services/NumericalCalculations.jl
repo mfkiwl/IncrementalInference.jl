@@ -1,43 +1,10 @@
-
-# TODO deprecate testshuffle
-function _checkErrorCCWNumerics(
-  ccwl::Union{CommonConvWrapper{F}, CommonConvWrapper{Mixture{N_, F, S, T}}},
-  testshuffle::Bool = false,
-) where {N_, F <: AbstractRelativeMinimize, S, T}
-  return nothing
-end
-function _checkErrorCCWNumerics(
-  ccwl::Union{CommonConvWrapper{F}, CommonConvWrapper{Mixture{N_, F, S, T}}},
-  testshuffle::Bool = false,
-) where {N_, F <: AbstractManifoldMinimize, S, T}
-  return nothing
-end
-
-
-function _perturbIfNecessary(
-  fcttype::Union{F, <:Mixture{N_, F, S, T}},
-  len::Int = 1,
-  perturbation::Real = 1e-10,
-) where {N_, F <: AbstractRelativeMinimize, S, T}
-  return 0
-end
-
-function _perturbIfNecessary(
-  fcttype::Union{F, <:Mixture{N_, F, S, T}},
-  len::Int = 1,
-  perturbation::Real = 1e-10,
-) where {N_, F <: AbstractManifoldMinimize, S, T}
-  return 0
-end
-#
-
-
 # internal use only, and selected out from approxDeconv functions
 function _solveLambdaNumeric(
   fcttype::AbstractPrior,
   objResX::Function,
   residual::AbstractVector{<:Real},
   u0::AbstractVector{<:Real},
+  variableType::Union{Nothing, VariableStateType},
   islen1::Bool = false;
   perturb::Real = 1e-10,
 )
@@ -45,14 +12,74 @@ function _solveLambdaNumeric(
 end
 #
 
+## ================================================================================================
+# TODO Maybe move to IIFTypes
+
+#TODO we can propably expand this to better traits in the future, such as:
+# Including the method (BFGS, NelderMead, etc)
+# but for now we just lump it together as the 2 current options:
+# OptimConvSolver and LieGroupOptimConvSolver
+# implemented by overloading ConvSolver
+"""
+    OptimConvSolver
+A approxConv solver for relative observation not on Manifold using Optim.jl.
+#TODO should be deprecated, but partials still use it.
+"""
+struct OptimConvSolver end 
+"""
+    LieGroupOptimConvSolver
+An approxConv solver for relative observation on LieGroups using Optim.jl.
+The current default for all relative observations.
+"""
+struct LieGroupOptimConvSolver end
+
+"""
+    ConvSolver(fcttype::RelativeObservation)
+
+Trait function to select the solver type used for approximate convolution (approxConv) of relative observation factors in non-parametric tree inference.
+
+By default, this returns `LieGroupOptimConvSolver`, which is suitable for relative observations on Lie groups. 
+You can overload this method for your custom factor type to specify a different solver.
+
+# Notes
+- Overload this trait for your custom factor if you require a different solver for approxConv.
+- The solver determines which optimization backend and method will be used during inference.
+"""
+ConvSolver(::Union{<:RelativeObservation, <:Mixture{N, <:RelativeObservation}}) where {N} = LieGroupOptimConvSolver()
+
+function ConvSolver(::Union{F, <:Mixture{N_, F, S, T}}) where {N_, F <: AbstractRelativeMinimize, S, T}
+  OptimConvSolver()
+end
+
+## ================================================================================================
+function _solveLambdaNumeric(
+  fcttype::Union{<:RelativeObservation, <:Mixture{N, <:RelativeObservation}},
+  objResX_hypoCalcFactor,
+  residual::AbstractVector{<:Real},
+  u0,
+  variableType::Union{Nothing, VariableStateType},
+  islen1::Bool = false,
+) where {N}
+  _solveLambdaNumeric(
+    ConvSolver(fcttype),
+    fcttype,
+    objResX_hypoCalcFactor,
+    residual,
+    u0,
+    variableType,
+    islen1
+  )
+end
 
 function _solveLambdaNumeric(
-  fcttype::Union{F, <:Mixture{N_, F, S, T}},
+  ::OptimConvSolver,
+  fcttype,#::RelativeObservation,
   objResX::Function,
   residual::AbstractVector{<:Real},
   u0::AbstractVector{<:Real},
+  variableType, #unused
   islen1::Bool = false,
-) where {N_, F <: AbstractRelativeMinimize, S, T}
+)
   # retries::Int=3 )
   #
   # wrt #467 allow residual to be standardize for Roots and Minimize and Parametric cases.
@@ -88,13 +115,14 @@ function (hypoCalcFactor::CalcFactorNormSq)(::Type{ManoptCalcConv}, M::AbstractM
 end
 
 function _solveLambdaNumeric(
-  fcttype::Union{F, <:Mixture{N_, F, S, T}},
+  ::LieGroupOptimConvSolver,
+  fcttype,#::RelativeObservation,
   hypoCalcFactor,
   residual::AbstractVector{<:Real},
-  u0,#::AbstractVector{<:Real},
+  u0,
   variableType::VariableStateType,
   islen1::Bool = false,
-) where {N_, F <: AbstractManifoldMinimize, S, T}
+)
   #
   M = getManifold(variableType)
   # the variable is a manifold point, we are working on the tangent plane in optim for now.
@@ -151,11 +179,11 @@ end
 # TODO test / dev for n-ary factor deconv
 # TODO Consolidate with _solveLambdaNumeric, see #1374
 function _solveLambdaNumericMeas(
-  fcttype::Union{F, <:Mixture{N_, F, S, T}},
+  fcttype::RelativeObservation,
   hypoCalcFactor,
   X0,#::AbstractVector{<:Real},
   islen1::Bool = false,
-) where {N_, F <: AbstractManifoldMinimize, S, T}
+)
   #
   M = getManifold(fcttype)
   ϵ = getPointIdentity(M)
@@ -283,7 +311,7 @@ function _solveCCWNumeric!(
   ccwl::Union{<:CommonConvWrapper{F}, <:CommonConvWrapper{<:Mixture{N_, F, S, T}}},
   _slack = nothing;
   perturb::Real = 1e-10,
-) where {N_, F <: AbstractRelative, S, T}
+) where {N_, F <: AbstractRelativeMinimize, S, T}
   #
   
   #
@@ -340,7 +368,8 @@ function _solveCCWNumeric!(
     getFactorType(ccwl), 
     _hypoObj, 
     ccwl.res, 
-    X, 
+    X,
+    nothing, #not used here
     islen1
   )
 
@@ -414,7 +443,7 @@ function _solveCCWNumeric!(
   ccwl::Union{<:CommonConvWrapper{F}, <:CommonConvWrapper{<:Mixture{N_, F, S, T}}},
   _slack = nothing;
   perturb::Real = 1e-10,
-) where {N_, F <: AbstractManifoldMinimize, S, T}
+) where {N_, F <: RelativeObservation, S, T}
   #
   #   # FIXME, move this check higher and out of smpid loop
   # _checkErrorCCWNumerics(ccwl, testshuffle)

@@ -16,7 +16,7 @@ end
 getManifold(::SpecialPrior) = TranslationGroup(1)
 getSample(s::CalcFactor{<:SpecialPrior}) = rand(s.factor.z,1)
 
-struct SpecialLinearOffset{T <: SamplableBelief} <: AbstractManifoldMinimize
+struct SpecialLinearOffset{T <: SamplableBelief} <: RelativeObservation
   z::T
 end
 getManifold(::SpecialLinearOffset) = TranslationGroup(1)

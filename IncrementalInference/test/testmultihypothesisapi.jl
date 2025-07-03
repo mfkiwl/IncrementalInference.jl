@@ -19,7 +19,7 @@ end
 getManifold(dp::DevelopPrior) = TranslationGroup(getDimension(dp.x))
 getSample(cf::CalcFactor{<:DevelopPrior}) = rand(cf.factor.x, 1)
 
-mutable struct DevelopLikelihood{T <: SamplableBelief} <: AbstractManifoldMinimize
+mutable struct DevelopLikelihood{T <: SamplableBelief} <: RelativeObservation
   x::T
 end
 
