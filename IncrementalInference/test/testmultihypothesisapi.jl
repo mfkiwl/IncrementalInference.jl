@@ -19,7 +19,7 @@ end
 getManifold(dp::DevelopPrior) = TranslationGroup(getDimension(dp.x))
 getSample(cf::CalcFactor{<:DevelopPrior}) = rand(cf.factor.x, 1)
 
-mutable struct DevelopLikelihood{T <: SamplableBelief} <: AbstractManifoldMinimize
+mutable struct DevelopLikelihood{T <: SamplableBelief} <: RelativeObservation
   x::T
 end
 
@@ -110,20 +110,20 @@ println("Packing converters")
 
 
 Base.@kwdef mutable struct PackedDevelopPrior <: AbstractPackedFactor
-  x::PackedSamplableBelief
+  x::PackedBelief
 end
 function convert(::Type{PackedDevelopPrior}, d::DevelopPrior)
-  PackedDevelopPrior(convert(PackedSamplableBelief, d.x))
+  PackedDevelopPrior(convert(PackedBelief, d.x))
 end
 function convert(::Type{DevelopPrior}, d::PackedDevelopPrior)
   DevelopPrior(convert(SamplableBelief, d.x))
 end
 
 @kwdef mutable struct PackedDevelopLikelihood <: AbstractPackedFactor
-  x::PackedSamplableBelief
+  x::PackedBelief
 end
 function convert(::Type{PackedDevelopLikelihood}, d::DevelopLikelihood)
-  PackedDevelopLikelihood(convert(PackedSamplableBelief, d.x))
+  PackedDevelopLikelihood(convert(PackedBelief, d.x))
 end
 function convert(::Type{<:DevelopLikelihood}, d::PackedDevelopLikelihood)
   DevelopLikelihood(convert(SamplableBelief, d.x))

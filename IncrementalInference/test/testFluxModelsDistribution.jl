@@ -18,7 +18,7 @@ measd = rand(fxd, 2)
 @test length( measd ) == 2
 
 # convert to packed type
-fxp = convert(PackedSamplableBelief, fxd) # TODO, PackedSamplableBelief
+fxp = convert(PackedBelief, fxd) # TODO, PackedBelief
 @test fxp isa IIF.PackedFluxModelsDistribution
 
 # convert back to hydrated object

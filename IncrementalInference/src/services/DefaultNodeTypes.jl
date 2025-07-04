@@ -11,19 +11,19 @@ Notes
 """
 function selectFactorType(
   Modl::Module,
-  T1::Type{<:InferenceVariable},
-  T2::Type{<:InferenceVariable},
+  T1::Type{<:VariableStateType},
+  T2::Type{<:VariableStateType},
 )
   return getfield(Modl, Symbol(T1, T2))
 end
-function selectFactorType(T1::Type{<:InferenceVariable}, T2::Type{<:InferenceVariable})
+function selectFactorType(T1::Type{<:VariableStateType}, T2::Type{<:VariableStateType})
   return selectFactorType(typeof(T1()).name.module, T1, T2)
 end
 selectFactorType(T1::Type{<:Position1}, T2::Type{<:Position1}) = LinearRelative{1}
 function selectFactorType(T1::Type{<:Position{N}}, T2::Type{<:Position{N}}) where {N}
   return LinearRelative{N}
 end
-function selectFactorType(T1::InferenceVariable, T2::InferenceVariable)
+function selectFactorType(T1::VariableStateType, T2::VariableStateType)
   return selectFactorType(typeof(T1), typeof(T2))
 end
 function selectFactorType(dfg::AbstractDFG, s1::Symbol, s2::Symbol)

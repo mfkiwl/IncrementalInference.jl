@@ -36,12 +36,12 @@ getManifold(mp::MsgPrior) = mp.M
 (cfo::CalcFactor{<:MsgPrior})(z, x1) = z .- x1
 
 Base.@kwdef struct PackedMsgPrior <: AbstractPackedFactor
-  Z::PackedSamplableBelief
+  Z::PackedBelief
   infoPerCoord::Vector{Float64}
 end
 
 function convert(::Type{PackedMsgPrior}, d::MsgPrior)
-  return PackedMsgPrior(convert(PackedSamplableBelief, d.Z), d.infoPerCoord)
+  return PackedMsgPrior(convert(PackedBelief, d.Z), d.infoPerCoord)
 end
 function convert(::Type{<:MsgPrior}, d::PackedMsgPrior)
   return MsgPrior(convert(SamplableBelief, d.Z), d.infoPerCoord)

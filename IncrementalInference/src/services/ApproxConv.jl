@@ -310,7 +310,7 @@ end
 #                           varTypes::Union{<:Tuple,<:AbstractVector{<:InstanceType{T}}}, 
 #                           mkds::Union{<:Tuple,<:AbstractVector{<:InstanceType{T}}};
 #                           tfg::AbstractDFG=_buildGraphByFactorAndTypes!(fct,)
-#                           ) where {T <: InferenceVariable}
+#                           ) where {T <: VariableStateType}
 #   #
 
 # end

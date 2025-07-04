@@ -2,7 +2,7 @@ using IncrementalInference
 using Test
 
 ## a new factor that is broken
-struct BrokenFactor{T<: SamplableBelief} <: AbstractManifoldMinimize
+struct BrokenFactor{T<: SamplableBelief} <: RelativeObservation
     Z::T
 end
 

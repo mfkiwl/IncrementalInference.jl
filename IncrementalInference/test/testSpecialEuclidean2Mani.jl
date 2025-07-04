@@ -135,7 +135,7 @@ end
 
 
 ##
-struct ManifoldFactorSE2{T <: SamplableBelief} <: IIF.AbstractManifoldMinimize
+struct ManifoldFactorSE2{T <: SamplableBelief} <: IIF.RelativeObservation
     Z::T
 end
 
@@ -216,7 +216,7 @@ end
 
 
 
-@testset "test deconv on <:AbstractManifoldMinimize" begin
+@testset "test deconv on <:RelativeObservation" begin
 ##
 
 fg = initfg()
@@ -264,7 +264,7 @@ end
 ##
 ## ======================================================================================
 
-struct ManiPose2Point2{T <: SamplableBelief} <: IIF.AbstractManifoldMinimize
+struct ManiPose2Point2{T <: SamplableBelief} <: IIF.RelativeObservation
     Z::T
     partial::Vector{Int}
 end

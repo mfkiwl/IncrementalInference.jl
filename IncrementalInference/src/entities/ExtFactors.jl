@@ -19,7 +19,7 @@ DevNotes
 - FIXME Lots of consolidation and standardization to do, see RoME.jl #244 regarding Manifolds.jl.
 - TODO does not yet handle case where a factor spans across two timezones.
 """
-struct DERelative{T <: InferenceVariable, P, D} <: AbstractManifoldMinimize # AbstractRelativeMinimize
+struct DERelative{T <: VariableStateType, P, D} <: RelativeObservation
   domain::Type{T}
   forwardProblem::P
   backwardProblem::P

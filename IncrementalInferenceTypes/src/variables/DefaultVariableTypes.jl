@@ -8,7 +8,7 @@ const InstanceType{T} = Union{Type{<:T}, <:T}
 
 Continuous Euclidean variable of dimension `N` representing a Position in cartesian space.
 """
-struct Position{N} <: InferenceVariable end
+struct Position{N} <: VariableStateType{N} end
 
 Position(N::Int) = Position{N}()
 

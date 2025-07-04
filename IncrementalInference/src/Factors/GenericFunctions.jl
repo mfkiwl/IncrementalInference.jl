@@ -72,7 +72,7 @@ export ManifoldFactor
 struct ManifoldFactor{
   M <: AbstractManifold, 
   T <: SamplableBelief
-} <: AbstractManifoldMinimize
+} <: RelativeObservation
   M::M
   Z::T
 end
@@ -106,7 +106,7 @@ end
 
 
 # Adjoints defined in ApproxManifoldProducts
-struct AdFactor{F <: AbstractManifoldMinimize} <: AbstractManifoldMinimize
+struct AdFactor{F <: RelativeObservation} <: RelativeObservation
   factor::F
 end
 
@@ -229,7 +229,7 @@ end
 Base.@kwdef mutable struct PackedManifoldPrior <: AbstractPackedFactor
   varType::String
   p::Vector{Float64}  #NOTE This is a fixed point from where the measurement `Z` likely stored as a coordinate
-  Z::PackedSamplableBelief
+  Z::PackedBelief
 end
 
 function convert(
@@ -243,7 +243,7 @@ function convert(
   c = AMP.makeCoordsFromPoint(obj.M, obj.p)
 
   # TODO convert all distributions to JSON
-  Zst = convert(PackedSamplableBelief, obj.Z) # String
+  Zst = convert(PackedBelief, obj.Z) # String
 
   return PackedManifoldPrior(varT, c, Zst)
 end
@@ -254,7 +254,7 @@ function convert(
 )
   #
 
-  # piggy back on serialization of InferenceVariable rather than try serialize anything Manifolds.jl
+  # piggy back on serialization of VariableStateType rather than try serialize anything Manifolds.jl
   M = DFG.getTypeFromSerializationModule(obj.varType) |> getManifold
 
   # TODO this is too excessive

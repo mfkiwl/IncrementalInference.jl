@@ -4,7 +4,7 @@ module IncrInfrInteractiveUtilsExt
 
 using InteractiveUtils
 using DocStringExtensions
-using IncrementalInference: InferenceVariable, AbstractPrior, AbstractRelativeMinimize, AbstractManifoldMinimize
+using IncrementalInference: VariableStateType, AbstractPrior, RelativeObservation
 # using IncrementalInference: getCurrentWorkspaceFactors, getCurrentWorkspaceVariables, listTypeTree
 import IncrementalInference: getCurrentWorkspaceFactors, getCurrentWorkspaceVariables, listTypeTree
 
@@ -19,8 +19,7 @@ Return all factors currently registered in the workspace.
 function getCurrentWorkspaceFactors()
   return [
     InteractiveUtils.subtypes(AbstractPrior)...,
-    # InteractiveUtils.subtypes(AbstractRelativeRoots)...,
-    InteractiveUtils.subtypes(AbstractRelativeMinimize)...,
+    InteractiveUtils.subtypes(RelativeObservation)...,
   ]
 end
 
@@ -30,7 +29,7 @@ end
 Return all variables currently registered in the workspace.
 """
 function getCurrentWorkspaceVariables()
-  return InteractiveUtils.subtypes(InferenceVariable)
+  return InteractiveUtils.subtypes(VariableStateType)
 end
 
 function _listTypeTree(mytype, printlevel::Int)

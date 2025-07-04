@@ -1,4 +1,42 @@
 ## ================================================================================================
+## Deprecated in v0.36
+## ================================================================================================
+
+#TODO this looks like dead code, should be removed
+# TODO deprecate testshuffle
+function _checkErrorCCWNumerics(
+  ccwl::Union{CommonConvWrapper{F}, CommonConvWrapper{Mixture{N_, F, S, T}}},
+  testshuffle::Bool = false,
+) where {N_, F <: AbstractRelativeMinimize, S, T}
+  return nothing
+end
+function _checkErrorCCWNumerics(
+  ccwl::Union{CommonConvWrapper{F}, CommonConvWrapper{Mixture{N_, F, S, T}}},
+  testshuffle::Bool = false,
+) where {N_, F <: AbstractManifoldMinimize, S, T}
+  return nothing
+end
+
+#TODO this looks like dead code, should be removed
+function _perturbIfNecessary(
+  fcttype::Union{F, <:Mixture{N_, F, S, T}},
+  len::Int = 1,
+  perturbation::Real = 1e-10,
+) where {N_, F <: AbstractRelativeMinimize, S, T}
+  return 0
+end
+
+function _perturbIfNecessary(
+  fcttype::Union{F, <:Mixture{N_, F, S, T}},
+  len::Int = 1,
+  perturbation::Real = 1e-10,
+) where {N_, F <: AbstractManifoldMinimize, S, T}
+  return 0
+end
+#
+
+
+## ================================================================================================
 ## ================================================================================================
 
 # TODO maybe upstream to DFG

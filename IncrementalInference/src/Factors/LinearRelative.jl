@@ -10,7 +10,7 @@ Default linear offset between two scalar variables.
 X_2 = X_1 + η_Z
 ```
 """
-struct LinearRelative{N, T <: SamplableBelief} <: AbstractManifoldMinimize # AbstractRelativeMinimize
+struct LinearRelative{N, T <: SamplableBelief} <: RelativeObservation 
   Z::T
 end
 
@@ -60,10 +60,10 @@ $(TYPEDEF)
 Serialization type for `LinearRelative` binary factor.
 """
 Base.@kwdef mutable struct PackedLinearRelative <: AbstractPackedFactor
-  Z::PackedSamplableBelief
+  Z::PackedBelief
 end
 function convert(::Type{PackedLinearRelative}, d::LinearRelative)
-  return PackedLinearRelative(convert(PackedSamplableBelief, d.Z))
+  return PackedLinearRelative(convert(PackedBelief, d.Z))
 end
 function convert(::Type{LinearRelative}, d::PackedLinearRelative)
   return LinearRelative(convert(SamplableBelief, d.Z))

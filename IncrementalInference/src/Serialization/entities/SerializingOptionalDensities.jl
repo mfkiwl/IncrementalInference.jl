@@ -1,7 +1,7 @@
 
 
 
-Base.@kwdef mutable struct PackedHeatmapGridDensity <: PackedSamplableBelief
+Base.@kwdef mutable struct PackedHeatmapGridDensity <: PackedBelief
   _type::String = "IncrementalInference.PackedHeatmapGridDensity"
   data::Vector{Vector{Float64}}
   domain::Tuple{Vector{Float64}, Vector{Float64}}
@@ -12,7 +12,7 @@ Base.@kwdef mutable struct PackedHeatmapGridDensity <: PackedSamplableBelief
 end
 
 
-Base.@kwdef mutable struct PackedLevelSetGridNormal <: PackedSamplableBelief
+Base.@kwdef mutable struct PackedLevelSetGridNormal <: PackedBelief
   _type::String = "IncrementalInference.PackedLevelSetGridNormal"
   level::Float64
   sigma::Float64
@@ -22,7 +22,7 @@ Base.@kwdef mutable struct PackedLevelSetGridNormal <: PackedSamplableBelief
 end
 
 
-Base.@kwdef mutable struct PackedFluxModelsDistribution <: PackedSamplableBelief
+Base.@kwdef mutable struct PackedFluxModelsDistribution <: PackedBelief
   # standardized _type field
   _type::String
   # shape of the input data

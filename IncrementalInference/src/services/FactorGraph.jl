@@ -380,7 +380,7 @@ end
 function DefaultNodeDataParametric(
   dodims::Int,
   dims::Int,
-  variableType::InferenceVariable;
+  variableType::VariableStateType;
   initialized::Bool = true,
   dontmargin::Bool = false,
   solveKey::Symbol = :parametric
@@ -433,7 +433,7 @@ DevNotes
 """
 function setDefaultNodeDataParametric!(
   v::DFGVariable,
-  variableType::InferenceVariable;
+  variableType::VariableStateType;
   solveKey::Symbol = :parametric,
   kwargs...,
 )
@@ -560,8 +560,8 @@ function setVariableRefence!(
 end
 
 # get instance from variableType
-_variableType(varType::InferenceVariable) = varType
-_variableType(varType::Type{<:InferenceVariable}) = varType()
+_variableType(varType::VariableStateType) = varType
+_variableType(varType::Type{<:VariableStateType}) = varType()
 
 ## ==================================================================================================
 ## DFG Overloads on addVariable! and addFactor!
@@ -570,7 +570,7 @@ _variableType(varType::Type{<:InferenceVariable}) = varType()
 """
 $(SIGNATURES)
 
-Add a variable node `label::Symbol` to `dfg::AbstractDFG`, as `varType<:InferenceVariable`.
+Add a variable node `label::Symbol` to `dfg::AbstractDFG`, as `varType<:VariableStateType`.
 
 Notes
 -----
@@ -597,7 +597,7 @@ function addVariable!(
   smalldata = Dict{Symbol, DFG.SmallDataTypes}(),
   checkduplicates::Bool = true,
   initsolvekeys::Vector{Symbol} = getSolverParams(dfg).algorithms,
-) where {T <: InferenceVariable}
+) where {T <: VariableStateType}
   #
   varType = _variableType(varTypeU)
 

@@ -50,7 +50,7 @@ end
 @testset "test InteractiveUtilsExt" begin
 ##
 
-IIF.listTypeTree(AbstractManifoldMinimize)
+IIF.listTypeTree(RelativeObservation)
 
 IIF.getCurrentWorkspaceFactors()
 IIF.getCurrentWorkspaceVariables()
