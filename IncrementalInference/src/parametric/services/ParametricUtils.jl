@@ -93,7 +93,7 @@ function getMeasurementParametric(s::AbstractFactor)
   return getMeasurementParametric(Z)
 end
 
-getMeasurementParametric(fct::DFGFactor) = getMeasurementParametric(getFactorType(fct))
+getMeasurementParametric(fct::FactorCompute) = getMeasurementParametric(getFactorType(fct))
 getMeasurementParametric(dfg::AbstractDFG, flb::Symbol) = getMeasurementParametric(getFactor(dfg, flb))
 
 # maybe rename getMeasurementParametric to something like getNormalDistributionParams or getMeanCov
@@ -120,7 +120,7 @@ function getFactorMeasurementParametric(fac::AbstractRelative)
   measX, iΣ
 end
 
-getFactorMeasurementParametric(fct::DFGFactor) = getFactorMeasurementParametric(getFactorType(fct))
+getFactorMeasurementParametric(fct::FactorCompute) = getFactorMeasurementParametric(getFactorType(fct))
 getFactorMeasurementParametric(dfg::AbstractDFG, flb::Symbol) = getFactorMeasurementParametric(getFactor(dfg, flb))
 
 ## ================================================================================================
@@ -131,11 +131,11 @@ getFactorMeasurementParametric(dfg::AbstractDFG, flb::Symbol) = getFactorMeasure
 getFactorMechanics(f::AbstractFactor) = f
 getFactorMechanics(f::Mixture) = f.mechanics
 
-function CalcFactorMahalanobis(fg, fct::DFGFactor)
+function CalcFactorMahalanobis(fg, fct::FactorCompute)
   fac_func = getFactorType(fct)
   varOrder = getVariableOrder(fct)
 
-  # NOTE, use getMeasurementParametric on DFGFactor{<:CCW} to allow special cases like OAS factors
+  # NOTE, use getMeasurementParametric on FactorCompute{<:CCW} to allow special cases like OAS factors
   _meas, _iΣ = getFactorMeasurementParametric(fct) # fac_func
   
   # make sure its a tuple TODO Fix with mixture rework #1504
@@ -185,7 +185,7 @@ function calcFactorMahalanobisDict(fg)
   return calcFactors
 end
 
-function getFactorTypesCount(facs::Vector{<:DFGFactor})
+function getFactorTypesCount(facs::Vector{<:FactorCompute})
   typedict = OrderedDict{DataType, Int}()
   alltypes = OrderedDict{DataType, Vector{Symbol}}()
   for f in facs
@@ -262,7 +262,7 @@ end
 
 getVariableTypesCount(fg::AbstractDFG) = getVariableTypesCount(getVariables(fg))
 
-function getVariableTypesCount(vars::Vector{<:DFGVariable})
+function getVariableTypesCount(vars::Vector{<:VariableCompute})
   typedict = OrderedDict{DataType, Int}()
   alltypes = OrderedDict{DataType, Vector{Symbol}}()
   for v in vars
@@ -281,7 +281,7 @@ end
 
 buildGraphSolveManifold(fg::AbstractDFG) = buildGraphSolveManifold(getVariables(fg))
 
-function buildGraphSolveManifold(vars::Vector{<:DFGVariable})
+function buildGraphSolveManifold(vars::Vector{<:VariableCompute})
   vartypes, vartypecount, vartypeslist = getVariableTypesCount(vars)
 
   PMs = map(vartypes) do vartype
@@ -819,7 +819,7 @@ function updateSolverDataParametric!(
 end
 
 function updateSolverDataParametric!(
-  v::DFGVariable,
+  v::VariableCompute,
   val::AbstractArray,
   cov::AbstractMatrix;
   solveKey::Symbol = :parametric,
@@ -954,7 +954,7 @@ function createMvNormal(val, cov)
   end
 end
 
-function createMvNormal(v::DFGVariable, key = :parametric)
+function createMvNormal(v::VariableCompute, key = :parametric)
   if key == :parametric
     vnd = getVariableState(v, :parametric)
     dims = vnd.dims
@@ -994,7 +994,7 @@ end
 
 function autoinitParametricOptim!(
   dfg::AbstractDFG,
-  xi::DFGVariable;
+  xi::VariableCompute;
   solveKey = :parametric,
   reinit::Bool = false,
   kwargs...,

@@ -247,7 +247,7 @@ end
 # TODO what about nullhypo in recipe (when .mhidx[smpid]==0)?
 # TODO figure out how best to combine with computeAcrossHypothesis!
 function _calcIPCRelative(
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   ccwl::CommonConvWrapper,
   hyporecipe::HypoRecipe, #NamedTuple,
   sfidx::Integer,
@@ -319,7 +319,7 @@ Multiple dispatch wrapper for `<:AbstractRelative` types, to prepare and execute
 Planned changes will fold null hypothesis in as a standard feature and no longer appear as a separate `VariableStateType`.
 """
 function evalPotentialSpecific(
-  variables::AbstractVector{<:DFGVariable},
+  variables::AbstractVector{<:VariableCompute},
   ccwl::CommonConvWrapper{T},
   solvefor::Symbol,
   T_::Type{<:AbstractRelative},          # NOTE Relative
@@ -398,7 +398,7 @@ end
 # TODO `measurement` might not be properly wired up yet
 # TODO consider 1051 here to inflate proposals as general behaviour
 function evalPotentialSpecific(
-  variables::AbstractVector{<:DFGVariable},
+  variables::AbstractVector{<:VariableCompute},
   ccwl::CommonConvWrapper{T},
   solvefor::Symbol,
   T_::Type{<:AbstractPrior},             # NOTE Prior
@@ -542,7 +542,7 @@ function evalPotentialSpecific(
 end
 
 function evalPotentialSpecific(
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   ccwl::CommonConvWrapper{Mixture{N_, F, S, T}},
   solvefor::Symbol,
   measurement::AbstractVector = Tuple[];
@@ -553,7 +553,7 @@ function evalPotentialSpecific(
 end
 
 function evalPotentialSpecific(
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   ccwl::CommonConvWrapper{F},
   solvefor::Symbol,
   measurement::AbstractVector = Tuple[];
@@ -570,7 +570,7 @@ Single entry point for evaluating factors from factor graph, using multiple disp
 """
 function evalFactor(
   dfg::AbstractDFG,
-  fct::DFGFactor,
+  fct::FactorCompute,
   solvefor::Symbol,
   measurement::AbstractVector = Tuple[]; # FIXME ensure type stable in all cases
   needFreshMeasurements::Bool = true,

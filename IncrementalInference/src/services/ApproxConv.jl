@@ -3,7 +3,7 @@ export calcFactorResidual
 
 function approxConvBelief(
   dfg::AbstractDFG,
-  fc::DFGFactor,
+  fc::FactorCompute,
   target::Symbol,
   measurement::AbstractVector = Tuple[];
   solveKey::Symbol = :default,
@@ -177,7 +177,7 @@ Notes
 """
 function calcProposalBelief(
   dfg::AbstractDFG,
-  fct::DFGFactor,
+  fct::FactorCompute,
   target::Symbol,
   measurement::AbstractVector = Tuple[];
   N::Int = length(measurement),
@@ -196,7 +196,7 @@ end
 # specifically the PartialPriorPassThrough dispatch
 function calcProposalBelief(
   dfg::AbstractDFG,
-  fct::DFGFactor{<:CommonConvWrapper{<:PartialPriorPassThrough}},
+  fct::FactorCompute{<:CommonConvWrapper{<:PartialPriorPassThrough}},
   target::Symbol,
   measurement::AbstractVector = Tuple[];
   N::Int = length(measurement),
@@ -238,7 +238,7 @@ Notes
 function proposalbeliefs!(
   dfg::AbstractDFG,
   destlbl::Symbol,
-  factors::AbstractVector, #{<:DFGFactor},
+  factors::AbstractVector, #{<:FactorCompute},
   dens::AbstractVector{<:ManifoldKernelDensity},
   measurement::AbstractVector = Tuple[];
   solveKey::Symbol = :default,

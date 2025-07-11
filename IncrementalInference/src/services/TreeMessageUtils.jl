@@ -97,7 +97,7 @@ function generateMsgPrior(belief_::TreeBelief, ::ParametricMessage)
     )
   elseif length(belief_.val[1]) > 1 #FIXME ? length(belief_.val) == 1
     mvnorm = createMvNormal(belief_.val[1], belief_.bw)
-    mvnorm !== nothing ? nothing : (return DFGFactor[])
+    mvnorm !== nothing ? nothing : (return FactorCompute[])
     MsgPrior(mvnorm, belief_.infoPerCoord, getManifold(belief_))
   end
   return msgPrior
@@ -548,7 +548,7 @@ function addMsgFactors!(
 )
   #
   # add messages as priors to this sub factor graph
-  msgfcts = DFGFactor[]
+  msgfcts = FactorCompute[]
   # TODO, expand -- this deconv approach only works for NonparametricMessage at this time.
   if getSolverParams(subfg).useMsgLikelihoods &&
      dir == UpwardPass &&
@@ -584,7 +584,7 @@ function addMsgFactors!(
   tags::Vector{Symbol} = Symbol[],
 )
   #
-  allfcts = DFGFactor[]
+  allfcts = FactorCompute[]
   for (cliqid, msgs) in allmsgs
     # do each dict in array separately
     newfcts = addMsgFactors!(subfg, msgs, dir; tags = tags)
@@ -601,12 +601,12 @@ during clique inference.
 
 DevNotes
 - TODO make `::Vector{Symbol}` version.
-- TODO function taking fcts::Vector{DFGFactor} is unused and replace by the tags version, perhaps we can remove it. 
+- TODO function taking fcts::Vector{FactorCompute} is unused and replace by the tags version, perhaps we can remove it. 
 Related
 
 `addMsgFactors!`
 """
-function deleteMsgFactors!(subfg::AbstractDFG, fcts::Vector{DFGFactor})
+function deleteMsgFactors!(subfg::AbstractDFG, fcts::Vector{FactorCompute})
   #
   for fc in fcts
     deleteFactor!(subfg, fc.label)

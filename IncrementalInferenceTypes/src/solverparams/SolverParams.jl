@@ -9,7 +9,7 @@ Dev Notes
 - TODO remove NothingUnion
 - TODO Upgrade to common @kwargs struct approach
 """
-Base.@kwdef mutable struct SolverParams <: DFG.AbstractParams
+Base.@kwdef mutable struct SolverParams <: DFG.AbstractDFGParams
   dimID::Int = 0
   reference::Union{Nothing, Dict{Symbol, Tuple{Symbol, Vector{Float64}}}} = nothing
   stateless::Bool = false
@@ -77,7 +77,7 @@ end
 StructTypes.omitempties(::Type{SolverParams}) = (:reference,)
 
 #
-Base.convert(::Type{SolverParams}, ::NoSolverParams) = begin 
+Base.convert(::Type{SolverParams}, ::DFG.NoSolverParams) = begin 
   @warn "FIXME Why converting NoSolverParams to SolverParams?"
   SolverParams()
 end

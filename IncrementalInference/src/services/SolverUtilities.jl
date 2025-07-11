@@ -76,7 +76,7 @@ function sampleFactor(
 end
 
 sampleFactor(
-  fct::DFGFactor, 
+  fct::FactorCompute, 
   N::Int = 1; 
   _allowThreads::Bool=true
 ) = sampleFactor(

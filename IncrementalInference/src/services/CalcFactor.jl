@@ -2,12 +2,7 @@
 
 export calcFactorResidualTemporary
 
-# NOTE, the full concrete type is recovered in reconstFactorData
-getFactorOperationalMemoryType(dfg::SolverParams) = CommonConvWrapper
-# difficult type piracy case needing both types NoSolverParams and CommonConvWrapper.
-getFactorOperationalMemoryType(dfg::NoSolverParams) = CommonConvWrapper
-
-getManifold(fct::DFGFactor{<:CommonConvWrapper}) = getManifold(_getCCW(fct))
+getManifold(fct::FactorCompute{<:CommonConvWrapper}) = getManifold(_getCCW(fct))
 
 function _getDimensionsPartial(ccw::CommonConvWrapper)
   # @warn "_getDimensionsPartial not ready for use yet"
@@ -20,7 +15,7 @@ function _getDimensionsPartial(data::GenericFunctionNodeData)
   ) 
   return _getCCW(data) |> _getDimensionsPartial
 end
-_getDimensionsPartial(fct::DFGFactor) = _getDimensionsPartial(_getCCW(fct))
+_getDimensionsPartial(fct::FactorCompute) = _getDimensionsPartial(_getCCW(fct))
 function _getDimensionsPartial(fg::AbstractDFG, lbl::Symbol)
   return _getDimensionsPartial(getFactor(fg, lbl))
 end
@@ -125,7 +120,7 @@ Related
 [`calcFactorResidualTemporary`](@ref), [`_evalFactorTemporary!`](@ref), [`approxConvBelief`](@ref)
 """
 function calcFactorResidual(
-  dfgfct::DFGFactor,
+  dfgfct::FactorCompute,
   args...;
   ccw::CommonConvWrapper = IIF._getCCW(dfgfct),
 )
@@ -243,7 +238,7 @@ Notes
 - `P = getPointType(<:VariableStateType)`
 """
 function _createVarValsAll(
-  variables::AbstractVector{<:DFGVariable};
+  variables::AbstractVector{<:VariableCompute};
   solveKey::Symbol = :default,
 )
   #
@@ -298,7 +293,7 @@ function _setCCWDecisionDimsConv!(
   xDim::Int
 ) where {
   N_,
-  F <: AbstractFactorObservation,
+  F <: AbstractObservation,
   S,
   T,
 }
@@ -367,7 +362,7 @@ Notes
 - Can be called with `length(Xi)==0`
 """
 function _createCCW(
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   usrfnc::T;
   multihypo::Union{Nothing, <:Distributions.Categorical} = nothing,
   nullhypo::Real = 0.0,
@@ -396,7 +391,7 @@ function _createCCW(
   manifold = getManifold(usrfnc)
   # standard factor metadata
   solvefor = length(Xi)
-  fullvariables = tuple(Xi...) # convert(Vector{DFGVariable}, Xi)
+  fullvariables = tuple(Xi...) # convert(Vector{VariableCompute}, Xi)
   # create a temporary CalcFactor object for extracting the first sample
 
   _cf = CalcFactorNormSq(
@@ -519,7 +514,7 @@ DevNotes
 function _beforeSolveCCW!(
   F_::Type{<:AbstractRelative},
   ccwl::CommonConvWrapper{F},
-  variables::AbstractVector{<:DFGVariable},
+  variables::AbstractVector{<:VariableCompute},
   sfidx::Int,
   N::Integer;
   measurement = Vector{Tuple{}}(),
@@ -590,7 +585,7 @@ end
 function _beforeSolveCCW!(
   F_::Type{<:AbstractPrior},
   ccwl::CommonConvWrapper{F},
-  variables::AbstractVector{<:DFGVariable},
+  variables::AbstractVector{<:VariableCompute},
   sfidx::Int,
   N::Integer;
   measurement = Vector{Tuple{}}(),
@@ -619,7 +614,7 @@ end
 # TODO, can likely deprecate this
 function _beforeSolveCCW!(
   ccwl::Union{CommonConvWrapper{F}, CommonConvWrapper{Mixture{N_, F, S, T}}},
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   # destVarVals::AbstractVector,
   sfidx::Int,
   N::Integer;
@@ -631,7 +626,7 @@ end
 
 function _beforeSolveCCW!(
   ccwl::Union{CommonConvWrapper{F}, CommonConvWrapper{Mixture{N_, F, S, T}}},
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   # destVarVals::AbstractVector,
   sfidx::Int,
   N::Integer;

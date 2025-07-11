@@ -402,9 +402,9 @@ Find parent clique Cp that containts the first eliminated variable of Sj as fron
 function identifyFirstEliminatedSeparator(
   dfg::AbstractDFG,
   elimorder::Vector{Symbol},
-  firvert::DFGVariable,
+  firvert::VariableCompute,
   Sj = getVariableState(firvert, :default).separator,
-)::DFGVariable
+)::VariableCompute
   #
   firstelim = (2^(Sys.WORD_SIZE - 1) - 1)
   for s in Sj
@@ -970,7 +970,7 @@ Notes:
 """
 isInitialized(cliq::TreeClique) = getSolverData(cliq).initialized #FIXME where is this definded, looks like dead code?
 
-function appendUseFcts!(usefcts, lblid::Symbol, fct::DFGFactor)
+function appendUseFcts!(usefcts, lblid::Symbol, fct::FactorCompute)
   # fid::Symbol )
   #
   union!(usefcts, Symbol(fct.label))
@@ -1039,7 +1039,7 @@ Return `::Bool` on whether factor is a partial constraint.
 """
 isPartial(fcf::T) where {T <: AbstractFactor} = :partial in fieldnames(T)
 isPartial(ccw::CommonConvWrapper) = ccw.usrfnc! |> isPartial
-isPartial(fct::DFGFactor) = _getCCW(fct) |> isPartial
+isPartial(fct::FactorCompute) = _getCCW(fct) |> isPartial
 
 """
     $SIGNATURES

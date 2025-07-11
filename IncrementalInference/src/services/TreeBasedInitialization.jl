@@ -105,7 +105,7 @@ function getCliqInitVarOrderDown(
 end
 
 function _isInitializedOrInitSolveKey(
-  var::DFGVariable,
+  var::VariableCompute,
   solveKey::Symbol = :default;
   N::Int = 100,
 )

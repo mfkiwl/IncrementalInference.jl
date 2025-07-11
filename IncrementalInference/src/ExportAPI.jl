@@ -29,9 +29,9 @@ export AbstractDFG,
   addData!,
   addBlob!,
   getData,
-  DFGVariable,
+  VariableCompute,
   DFGVariableSummary,
-  DFGFactor,
+  FactorCompute,
   DFGFactorSummary,
   deleteVariableSolverData!
 # listDataBlobs  # ERROR: LightDFG{} doesn't override 'listDataBlobs'.

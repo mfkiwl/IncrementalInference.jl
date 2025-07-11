@@ -15,8 +15,8 @@ Related
 """
 function propagateBelief(
   dfg::AbstractDFG,
-  destvar::DFGVariable,
-  factors::AbstractVector; #{<:DFGFactor};
+  destvar::VariableCompute,
+  factors::AbstractVector; #{<:FactorCompute};
   solveKey::Symbol = :default,
   dens::AbstractVector{<:ManifoldKernelDensity} = Vector{ManifoldKernelDensity}(), # TODO, abstract requires dynamic dispatch (slow)
   N::Integer = getSolverParams(dfg).N,

@@ -20,7 +20,7 @@ Related: [`getMeasurementParametric`](@ref), [`approxConvBelief`](@ref), [`Mutab
 """
 function solveFactorParametric(
   dfg::AbstractDFG,
-  fct::DFGFactor,
+  fct::FactorCompute,
   # currval::P1,
   srcsym_vals::AbstractVector{Pair{Symbol, P}},
   trgsym::Symbol;
@@ -44,7 +44,7 @@ function solveFactorParametric(
   measT = [mea_]
 
   # get variable points
-  function _getParametric(vari::DFGVariable, key = :default)
+  function _getParametric(vari::VariableCompute, key = :default)
     # hasp = haskey(getPPEDict(vari), key)
     # FIXME use PPE via Manifold points currently in coordinates
     # hasp ? getPPE(vari, key).suggested : calcMean(getBelief(vari, key))

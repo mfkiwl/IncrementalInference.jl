@@ -18,7 +18,7 @@ end
 
 function CalcFactorResidual(
   fg, 
-  fct::DFGFactor, 
+  fct::FactorCompute, 
   varIntLabel
 )
   fac_func = getFactorType(fct)
@@ -520,7 +520,7 @@ end
 
 function autoinitParametric!(
   dfg::AbstractDFG,
-  xi::DFGVariable;
+  xi::VariableCompute;
   solveKey = :parametric,
   reinit::Bool = false,
   perturb_point::Bool=false,

@@ -51,7 +51,7 @@ DevNotes
 - TODO does not handle timezone crossing properly yet.
 """
 function _calcTimespan(
-  Xi::AbstractVector{<:DFGVariable}
+  Xi::AbstractVector{<:VariableCompute}
 )
   #
   tsmps = getTimestamp.(Xi[1:2]) .|> DateTime .|> datetime2unix
@@ -60,13 +60,13 @@ function _calcTimespan(
 end
 # Notes
 # - Can change numerical data return type using an additional first argument, `_calcTimespan(Float32, Xi)`.
-# _calcTimespan(Xi::AbstractVector{<:DFGVariable}) = _calcTimespan(Float64, Xi)
+# _calcTimespan(Xi::AbstractVector{<:VariableCompute}) = _calcTimespan(Float64, Xi)
 
 # performance helper function, FIXME not compatible with all multihypo cases
 _maketuplebeyond2args = (w1 = nothing, w2 = nothing, w3_...) -> (w3_...,)
 
 function DERelative(
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   domain::Type{<:VariableStateType},
   f::Function,
   data = () -> ();
@@ -97,7 +97,7 @@ function DERelative(
   domain::Type{<:VariableStateType},
   f::Function,
   data = () -> ();
-  Xi::AbstractArray{<:DFGVariable} = getVariable.(dfg, labels),
+  Xi::AbstractArray{<:VariableCompute} = getVariable.(dfg, labels),
   dt::Real = 1,
   state1::AbstractVector{<:Real} = allocate(getPointIdentity(domain)), #zeros(getDimension(domain)),
   state0::AbstractVector{<:Real} = allocate(getPointIdentity(domain)), #zeros(getDimension(domain)),

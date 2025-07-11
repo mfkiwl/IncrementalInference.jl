@@ -73,7 +73,6 @@ import DistributedFactorGraphs: compare
 import DistributedFactorGraphs: rebuildFactorCache!
 import DistributedFactorGraphs: getDimension, getManifold, getPointType, getPointIdentity
 import DistributedFactorGraphs: getPPE, getPPEDict
-import DistributedFactorGraphs: getFactorOperationalMemoryType
 import DistributedFactorGraphs: getPoint, getCoordinates
 import DistributedFactorGraphs: getVariableType
 import DistributedFactorGraphs: AbstractPointParametricEst, loadDFG

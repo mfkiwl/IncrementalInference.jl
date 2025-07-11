@@ -36,7 +36,7 @@ function calcStdBasicSpread(vartype::VariableStateType, ptsArr::AbstractVector) 
 end
 
 #TODO consolidate
-function calcMeanCovar(vari::DFGVariable, solvekey = :default)
+function calcMeanCovar(vari::VariableCompute, solvekey = :default)
   pts = getVariableState(vari, solvekey).val
   μ = mean(getManifold(vari), pts)
   Σ = cov(getVariableType(vari), pts)

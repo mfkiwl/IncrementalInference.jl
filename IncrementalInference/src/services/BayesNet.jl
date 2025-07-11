@@ -111,7 +111,7 @@ function addChainRuleMarginal!(dfg::AbstractDFG, Si::Vector{Symbol})
   return nothing
 end
 
-function rmVarFromMarg(dfg::AbstractDFG, fromvert::DFGVariable, gm::Vector{DFGFactor})
+function rmVarFromMarg(dfg::AbstractDFG, fromvert::VariableCompute, gm::Vector{FactorCompute})
   #
 
   @debug " - Removing $(fromvert.label)"
@@ -161,7 +161,7 @@ function buildBayesNet!(dfg::AbstractDFG, elimorder::Vector{Symbol}; solvable::I
     # all factors adjacent to this variable
     fi = Symbol[]
     Si = Symbol[]
-    gm = DFGFactor[]
+    gm = FactorCompute[]
 
     vert = DFG.getVariable(dfg, v)
     for fctId in listNeighbors(dfg, vert; solvable = solvable)

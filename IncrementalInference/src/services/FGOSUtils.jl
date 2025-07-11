@@ -68,7 +68,7 @@ Get the CommonConvWrapper for this factor.
 function _getCCW(gfnd::GenericFunctionNodeData)
   error("_getCCW(gfnd::GenericFunctionNodeData) is deprecated, use DFG.getCache instead.")
 end
-_getCCW(fct::DFGFactor) = DFG.getCache(fct) #getVariableState(fct) |> _getCCW
+_getCCW(fct::FactorCompute) = DFG.getCache(fct) #getVariableState(fct) |> _getCCW
 _getCCW(dfg::AbstractDFG, lbl::Symbol) = DFG.getCache(getFactor(dfg, lbl)) #getFactor(dfg, lbl) |> _getCCW
 
 DFG.getFactorType(ccw::CommonConvWrapper) = ccw.usrfnc!
@@ -78,10 +78,10 @@ _getZDim(ccw::CommonConvWrapper) = getManifold(ccw) |> manifold_dimension # ccw.
 _getZDim(ccw::CommonConvWrapper{<:MsgPrior}) = length(ccw.usrfnc!.infoPerCoord) # ccw.usrfnc!.inferdim
 
 _getZDim(fcd::GenericFunctionNodeData) = _getCCW(fcd) |> _getZDim
-_getZDim(fct::DFGFactor) = _getCCW(fct) |> _getZDim
+_getZDim(fct::FactorCompute) = _getCCW(fct) |> _getZDim
 
 DFG.getDimension(fct::GenericFunctionNodeData) = _getZDim(fct)
-DFG.getDimension(fct::DFGFactor) = _getZDim(fct)
+DFG.getDimension(fct::FactorCompute) = _getZDim(fct)
 
 """
     $SIGNATURES
@@ -237,7 +237,7 @@ Related
 [`getPPE`](@ref), [`setPPE!`](@ref), [`getVariablePPE`](@ref)
 """
 function calcPPE(
-  var::DFGVariable,
+  var::VariableCompute,
   varType::VariableStateType = getVariableType(var);
   ppeType::Type{<:MeanMaxPPE} = MeanMaxPPE,
   solveKey::Symbol = :default,
@@ -276,7 +276,7 @@ function calcPPE(
   )
 end
 
-# calcPPE(var::DFGVariable; method::Type{<:AbstractPointParametricEst}=MeanMaxPPE, solveKey::Symbol=:default) = calcPPE(var, getVariableType(var), method=method, solveKey=solveKey)
+# calcPPE(var::VariableCompute; method::Type{<:AbstractPointParametricEst}=MeanMaxPPE, solveKey::Symbol=:default) = calcPPE(var, getVariableType(var), method=method, solveKey=solveKey)
 
 
 function calcPPE(
@@ -301,7 +301,7 @@ Related
 
 [`getMultihypoDistribution`](@ref)
 """
-isMultihypo(fct::DFGFactor) = isa(_getCCW(fct).hyporecipe.hypotheses, Distribution)
+isMultihypo(fct::FactorCompute) = isa(_getCCW(fct).hyporecipe.hypotheses, Distribution)
 
 """
     $SIGNATURES
@@ -312,7 +312,7 @@ Related
 
 isMultihypo
 """
-getMultihypoDistribution(fct::DFGFactor) = _getCCW(fct).hyporecipe.hypotheses
+getMultihypoDistribution(fct::FactorCompute) = _getCCW(fct).hyporecipe.hypotheses
 
 """
     $SIGNATURES
@@ -546,7 +546,7 @@ Related
 [`calcPPE`](@ref), getVariablePPE, (updatePPE! ?)
 """
 function setPPE!(
-  variable::DFGVariable,
+  variable::VariableCompute,
   solveKey::Symbol = :default,
   ppeType::Type{T} = MeanMaxPPE,
   newPPEVal::T = calcPPE(variable; ppeType = ppeType, solveKey = solveKey),

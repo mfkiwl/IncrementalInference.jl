@@ -94,8 +94,8 @@ Dev Notes:
 - TODO: needs testing
 """
 function DFG.rebuildFactorCache!(
-  dfg::AbstractDFG{SolverParams},
-  factor::DFGFactor,
+  dfg::AbstractDFG,
+  factor::FactorCompute,
   neighbors = map(vId -> getVariable(dfg, vId), listNeighbors(dfg, factor));
   _blockRecursionGradients::Bool=false
 )

@@ -12,7 +12,7 @@ function solveUp_ParametricStateMachine(csmc::CliqStateMachineContainer)
   # csmc.drawtree ? drawTree(csmc.tree, show=false, filepath=joinpath(getSolverParams(csmc.dfg).logpath,"bt.pdf")) : nothing
 
   #TODO maybe change to symbols
-  msgfcts = DFGFactor[]
+  msgfcts = FactorCompute[]
   # LITTLE WEIRD get previously set up msgs (stored in this clique)
   # FIXME, fetch message buffered in channels
   # see #855

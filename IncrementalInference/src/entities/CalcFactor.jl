@@ -54,7 +54,7 @@ struct CalcFactorNormSq{
   ## TODO Consolidation WIP with FactorMetadata
   # full list of variables connected to the factor
   # TODO make sure this list is of the active hypo only
-  fullvariables::VT # Vector{<:DFGVariable} # FIXME change to tuple for better type stability
+  fullvariables::VT # Vector{<:VariableCompute} # FIXME change to tuple for better type stability
   # which index is being solved for?
   solvefor::Int
   manifold::M

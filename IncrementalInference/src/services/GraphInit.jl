@@ -131,7 +131,7 @@ Development Notes:
 """
 function doautoinit!(
   dfg::AbstractDFG,
-  xi::DFGVariable;
+  xi::VariableCompute;
   solveKey::Symbol = :default,
   singles::Bool = true,
   N::Int = getSolverParams(dfg).N, #maximum([length(getPoints(getBelief(xi, solveKey))); getSolverParams(dfg).N]),
@@ -197,7 +197,7 @@ end
 
 function doautoinit!(
   dfg::AbstractDFG,
-  Xi::Vector{<:DFGVariable};
+  Xi::Vector{<:VariableCompute};
   solveKey::Symbol = :default,
   singles::Bool = true,
   N::Int = getSolverParams(dfg).N,
@@ -286,7 +286,7 @@ DevNotes
 - TODO better document graphinit and treeinit.
 """
 function initVariable!(
-  variable::DFGVariable,
+  variable::VariableCompute,
   ptsArr::ManifoldKernelDensity,
   solveKey::Symbol = :default;
   dontmargin::Bool = false,
@@ -339,7 +339,7 @@ function initVariable!(
 end
 
 function initVariable!(
-  variable::DFGVariable,
+  variable::VariableCompute,
   samplable_belief::SamplableBelief,
   solveKey::Symbol = :default;
   N::Int = length(getVal(variable)),
@@ -378,7 +378,7 @@ function initVariable!(
 end
 
 function initVariable!(
-  vari::DFGVariable,
+  vari::VariableCompute,
   pts::AbstractVector{P},
   solveKey::Symbol = :default;
   bw = nothing,

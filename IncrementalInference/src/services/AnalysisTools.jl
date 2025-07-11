@@ -162,7 +162,7 @@ end
 # Tools for checking the numerical performance of the solve
 
 function mmdSolveKey(
-  vari::DFGVariable,
+  vari::VariableCompute,
   refKey::Symbol,
   tstKey::Symbol;
   bw::AbstractVector{<:Real} = [0.001;],

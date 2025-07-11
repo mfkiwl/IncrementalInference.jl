@@ -30,7 +30,7 @@ Related
 [`approxDeconv`](@ref), [`_solveCCWNumeric!`](@ref)
 """
 function approxDeconv(
-  fcto::DFGFactor{<:Union{<:AbstractRelativeMinimize, <:PriorObservation}},
+  fcto::FactorCompute{<:Union{<:AbstractRelativeMinimize, <:PriorObservation}},
   ccw::CommonConvWrapper = _getCCW(fcto);
   N::Int = 100,
   measurement::AbstractVector = sampleFactor(ccw, N),
@@ -116,7 +116,7 @@ end
 #FIXME add trait to get AbstractManifoldMinimize functionality. 
 # Or better consolidate wiht previous approxDeconv function.
 function approxDeconv(
-  fcto::DFGFactor{<:RelativeObservation},
+  fcto::FactorCompute{<:RelativeObservation},
   ccw::CommonConvWrapper = _getCCW(fcto);
   N::Int = 100,
   measurement::AbstractVector = sampleFactor(ccw, N),

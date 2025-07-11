@@ -53,8 +53,8 @@ reshapeVec2Mat(vec::Vector, rows::Int) = reshape(vec, rows, round(Int, length(ve
 
 Fetch the variable marginal joint sampled points.  Use [`getBelief`](@ref) to retrieve the full Belief object.
 """
-getVal(v::DFGVariable; solveKey::Symbol = :default) = v.solverDataDict[solveKey].val
-function getVal(v::DFGVariable, idx::Int; solveKey::Symbol = :default)
+getVal(v::VariableCompute; solveKey::Symbol = :default) = v.solverDataDict[solveKey].val
+function getVal(v::VariableCompute, idx::Int; solveKey::Symbol = :default)
   return v.solverDataDict[solveKey].val[:, idx]
 end
 getVal(vnd::VariableNodeData) = vnd.val
@@ -68,7 +68,7 @@ end
 
 Get the number of points used for the current marginal belief estimate represtation for a particular variable in the factor graph.
 """
-function getNumPts(v::DFGVariable; solveKey::Symbol = :default)::Int
+function getNumPts(v::VariableCompute; solveKey::Symbol = :default)::Int
   return length(getVal(getVariableState(v, solveKey)))
 end
 
@@ -77,14 +77,14 @@ function AMP.getBW(vnd::VariableNodeData)
 end
 
 # setVal! assumes you will update values to database separate, this used for local graph mods only
-function getBWVal(v::DFGVariable; solveKey::Symbol = :default)
+function getBWVal(v::VariableCompute; solveKey::Symbol = :default)
   return getVariableState(v, solveKey).bw
 end
 function setBW!(vd::VariableNodeData, bw::Array{Float64, 2}; solveKey::Symbol = :default)
   vd.bw = bw
   return nothing
 end
-function setBW!(v::DFGVariable, bw::Array{Float64, 2}; solveKey::Symbol = :default)
+function setBW!(v::VariableCompute, bw::Array{Float64, 2}; solveKey::Symbol = :default)
   setBW!(getVariableState(v, solveKey), bw)
   return nothing
 end
@@ -94,7 +94,7 @@ function setVal!(vd::VariableNodeData, val::AbstractVector{P}) where {P}
   return nothing
 end
 function setVal!(
-  v::DFGVariable,
+  v::VariableCompute,
   val::AbstractVector{P};
   solveKey::Symbol = :default,
 ) where {P}
@@ -111,7 +111,7 @@ function setVal!(
   return nothing
 end
 function setVal!(
-  v::DFGVariable,
+  v::VariableCompute,
   val::AbstractVector{P},
   bw::AbstractMatrix{Float64};
   solveKey::Symbol = :default,
@@ -129,7 +129,7 @@ function setVal!(
   return nothing
 end
 function setVal!(
-  v::DFGVariable,
+  v::VariableCompute,
   val::AbstractVector{P},
   bw::AbstractVector{Float64};
   solveKey::Symbol = :default,
@@ -184,7 +184,7 @@ function setValKDE!(
 end
 
 function setValKDE!(
-  v::DFGVariable,
+  v::VariableCompute,
   val::AbstractVector{P},
   bws::Array{<:Real, 2},
   setinit::Bool = true,
@@ -198,7 +198,7 @@ function setValKDE!(
 end
 
 function setValKDE!(
-  v::DFGVariable,
+  v::VariableCompute,
   val::AbstractVector{P},
   setinit::Bool = true,
   ipc::AbstractVector{<:Real} = [0.0;];
@@ -212,7 +212,7 @@ function setValKDE!(
   return nothing
 end
 function setValKDE!(
-  v::DFGVariable,
+  v::VariableCompute,
   em::TreeBelief,
   setinit::Bool = true;
   # inferdim::Union{Float32, Float64, Int32, Int64}=0;
@@ -223,7 +223,7 @@ function setValKDE!(
   return nothing
 end
 function setValKDE!(
-  v::DFGVariable,
+  v::VariableCompute,
   mkd::ManifoldKernelDensity,
   setinit::Bool = true,
   ipc::AbstractVector{<:Real} = [0.0;];
@@ -286,7 +286,7 @@ function setValKDE!(
 end
 
 function setBelief!(
-  vari::DFGVariable, 
+  vari::VariableCompute, 
   bel::ManifoldKernelDensity, 
   setinit::Bool=true, 
   ipc::AbstractVector{<:Real}=[0.0;];
@@ -305,7 +305,7 @@ function setVariableInitialized!(varid::VariableNodeData, status::Bool)
   return varid.initialized = status
 end
 
-function setVariableInitialized!(vari::DFGVariable, solveKey::Symbol, status::Bool)
+function setVariableInitialized!(vari::VariableCompute, solveKey::Symbol, status::Bool)
   return setVariableInitialized!(getVariableState(vari, solveKey), status)
 end
 
@@ -316,7 +316,7 @@ Set method for the inferred dimension value in a variable.
 """
 setIPC!(varid::VariableNodeData, val::AbstractVector{<:Real}) = varid.infoPerCoord = val
 function setIPC!(
-  vari::DFGVariable,
+  vari::VariableCompute,
   val::AbstractVector{<:Real},
   solveKey::Symbol = :default,
 )
@@ -335,7 +335,7 @@ function getBelief(vnd::VariableNodeData)
   return manikde!(getManifold(getVariableType(vnd)), getVal(vnd); bw = getBW(vnd)[:, 1])
 end
 
-function getBelief(v::DFGVariable, solvekey::Symbol = :default)
+function getBelief(v::VariableCompute, solvekey::Symbol = :default)
   return getBelief(getVariableState(v, solvekey))
 end
 function getBelief(dfg::AbstractDFG, lbl::Symbol, solvekey::Symbol = :default)
@@ -362,7 +362,7 @@ function resetVariable!(varid::VariableNodeData)
   return nothing
 end
 
-function resetVariable!(vari::DFGVariable, solveKey::Symbol = :default)
+function resetVariable!(vari::VariableCompute, solveKey::Symbol = :default)
   return resetVariable!(getVariableState(vari, solveKey))
 end
 
@@ -426,7 +426,7 @@ DevNotes
 - TODO assumes parametric solves will always just be under the `solveKey=:parametric`, should be generalized.
 """
 function setDefaultNodeDataParametric!(
-  v::DFGVariable,
+  v::VariableCompute,
   variableType::VariableStateType;
   solveKey::Symbol = :parametric,
   kwargs...,
@@ -445,7 +445,7 @@ Notes
 - Used during creation of new variable, as well as in CSM unique `solveKey`.
 """
 function setDefaultNodeData!(
-  v::DFGVariable,
+  v::VariableCompute,
   dodims::Int,
   N::Int,
   dims::Int=getDimension(v);
@@ -548,7 +548,7 @@ function setVariableRefence!(
     true,
   )
   #
-  # set the value in the DFGVariable
+  # set the value in the VariableCompute
   return mergeVariableState!(var, vnd)
 end
 
@@ -598,7 +598,7 @@ function addVariable!(
   _zonedtime(s::ZonedDateTime) = s 
 
   union!(tags, [:VARIABLE])
-  v = DFGVariable(
+  v = VariableCompute(
     label,
     varType;
     tags = Set(tags),
@@ -688,7 +688,7 @@ Example:
 ```julia
 import IncrementalInference: preableCache
 
-preableCache(dfg::AbstractDFG, vars::AbstractVector{<:DFGVariable}, usrfnc::MyFactor) = MyFactorCache(randn(10))
+preableCache(dfg::AbstractDFG, vars::AbstractVector{<:VariableCompute}, usrfnc::MyFactor) = MyFactorCache(randn(10))
 
 # continue regular use, e.g.
 mfc = MyFactor(...)
@@ -698,7 +698,7 @@ addFactor!(fg, [:a;:b], mfc)
 """
 function preambleCache(
   dfg::AbstractDFG,
-  vars::AbstractVector{<:DFGVariable},
+  vars::AbstractVector{<:VariableCompute},
   usrfnc::AbstractFactor,
 )
   return nothing
@@ -708,12 +708,12 @@ end
 """
 $SIGNATURES
 
-Generate the default factor data for a new DFGFactor.
+Generate the default factor data for a new FactorCompute.
 """
 function getDefaultFactorData(
   dfg::AbstractDFG,
-  Xi::Vector{<:DFGVariable},
-  usrfnc::T;
+  Xi::Vector{<:VariableCompute},
+  usrfnc::AbstractFactor;
   multihypo::Vector{<:Real} = Float64[],
   nullhypo::Float64 = 0.0,
   # threadmodel = SingleThreaded,
@@ -776,7 +776,7 @@ function isLeastOneHypoAvailable(
          sfidx in uncertnidx && sum(isinit[certainidx]) == length(certainidx)
 end
 
-function assembleFactorName(dfg::AbstractDFG, Xi::Vector{<:DFGVariable})
+function assembleFactorName(dfg::AbstractDFG, Xi::Vector{<:VariableCompute})
   #
 
   existingFactorLabels = listFactors(dfg)
@@ -816,7 +816,7 @@ Experimental
 """
 function DFG.addFactor!(
   dfg::AbstractDFG,
-  Xi::AbstractVector{<:DFGVariable},
+  Xi::AbstractVector{<:VariableCompute},
   usrfnc::AbstractFactor;
   multihypo::Vector{Float64} = Float64[],
   nullhypo::Float64 = 0.0,
