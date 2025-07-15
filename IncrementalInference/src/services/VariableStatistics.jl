@@ -1,16 +1,16 @@
 
-function Statistics.mean(vartype::VariableStateType, args...; kwargs...)
+function Statistics.mean(vartype::StateType, args...; kwargs...)
   return mean(getManifold(vartype), args...; kwargs...)
 end
-function Statistics.std(vartype::VariableStateType, args...; kwargs...)
+function Statistics.std(vartype::StateType, args...; kwargs...)
   return std(getManifold(vartype), args...; kwargs...)
 end
-function Statistics.var(vartype::VariableStateType, args...; kwargs...)
+function Statistics.var(vartype::StateType, args...; kwargs...)
   return var(getManifold(vartype), args...; kwargs...)
 end
 
 function Statistics.cov(
-  vartype::VariableStateType,
+  vartype::StateType,
   ptsArr::AbstractVector;
   basis::Manifolds.AbstractBasis = Manifolds.DefaultOrthogonalBasis(),
   kwargs...,
@@ -19,7 +19,7 @@ function Statistics.cov(
 end
 
 #TODO check performance and FIXME on makemutalbe might not be needed any more
-function calcStdBasicSpread(vartype::VariableStateType, ptsArr::AbstractVector) # {P}) where {P}
+function calcStdBasicSpread(vartype::StateType, ptsArr::AbstractVector) # {P}) where {P}
   # _makemutable(s) = s
   # _makemutable(s::StaticArray{Tuple{S},T,N}) where {S,T,N} = MArray{Tuple{S},T,N,S}(s)
   # _makemutable(s::SMatrix{N,N,T,D}) where {N,T,D} = MMatrix{N,N,T,D}(s)
@@ -37,7 +37,7 @@ end
 
 #TODO consolidate
 function calcMeanCovar(vari::VariableCompute, solvekey = :default)
-  pts = getVariableState(vari, solvekey).val
+  pts = getState(vari, solvekey).val
   μ = mean(getManifold(vari), pts)
   Σ = cov(getVariableType(vari), pts)
   return μ, Σ

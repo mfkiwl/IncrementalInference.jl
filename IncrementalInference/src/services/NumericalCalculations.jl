@@ -4,7 +4,7 @@ function _solveLambdaNumeric(
   objResX::Function,
   residual::AbstractVector{<:Real},
   u0::AbstractVector{<:Real},
-  variableType::Union{Nothing, VariableStateType},
+  variableType::Union{Nothing, StateType},
   islen1::Bool = false;
   perturb::Real = 1e-10,
 )
@@ -57,7 +57,7 @@ function _solveLambdaNumeric(
   objResX_hypoCalcFactor,
   residual::AbstractVector{<:Real},
   u0,
-  variableType::Union{Nothing, VariableStateType},
+  variableType::Union{Nothing, StateType},
   islen1::Bool = false,
 ) where {N}
   _solveLambdaNumeric(
@@ -120,7 +120,7 @@ function _solveLambdaNumeric(
   hypoCalcFactor,
   residual::AbstractVector{<:Real},
   u0,
-  variableType::VariableStateType,
+  variableType::StateType,
   islen1::Bool = false,
 )
   #

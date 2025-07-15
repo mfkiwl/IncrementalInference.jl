@@ -123,7 +123,7 @@ function _isInitializedOrInitSolveKey(
       dontmargin = false,
     )
     #
-    # data = getVariableState(var, solveKey)
+    # data = getState(var, solveKey)
     # if data === nothing
     # end
     return false
@@ -182,8 +182,8 @@ function printCliqInitPartialInfo(
   initstatus = Vector{Bool}(undef, length(varids))
   initpartial = Vector{Float64}(undef, length(varids))
   for i = 1:length(varids)
-    initstatus[i] = isInitialized(subfg, varids[i], solveKey) # getVariableState(getVariable(subfg, varids[i]), solveKey).initialized
-    initpartial[i] = -1 # getVariableState(getVariable(subfg, varids[i]), solveKey).inferdim
+    initstatus[i] = isInitialized(subfg, varids[i], solveKey) # getState(getVariable(subfg, varids[i]), solveKey).initialized
+    initpartial[i] = -1 # getState(getVariable(subfg, varids[i]), solveKey).inferdim
   end
   with_logger(logger) do
     tt = split(string(now()), 'T')[end]

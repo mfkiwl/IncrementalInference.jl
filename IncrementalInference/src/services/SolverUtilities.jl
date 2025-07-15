@@ -25,7 +25,7 @@ end
 function mmd(
   p1::AbstractVector{P1},
   p2::AbstractVector{P2},
-  varType::Union{InstanceType{<:VariableStateType}, InstanceType{<:AbstractFactor}},
+  varType::Union{InstanceType{<:StateType}, InstanceType{<:AbstractFactor}},
   threads::Bool = true;
   bw::AbstractVector{<:Real} = SA[0.001;],
 ) where {P1 <: AbstractVector, P2 <: AbstractVector}
@@ -37,7 +37,7 @@ end
 function mmd(
   p1::ManifoldKernelDensity,
   p2::ManifoldKernelDensity,
-  nodeType::Union{InstanceType{<:VariableStateType}, InstanceType{<:AbstractFactor}},
+  nodeType::Union{InstanceType{<:StateType}, InstanceType{<:AbstractFactor}},
   threads::Bool = true;
   bw::AbstractVector{<:Real} = SA[0.001;],
   asPartial::Bool = true
@@ -238,9 +238,9 @@ function _checkVariableByReference(
   fg::AbstractDFG,
   srcLabel::Symbol,
   destRegex::Regex,
-  destType::Type{<:VariableStateType},
+  destType::Type{<:StateType},
   factor::AbstractRelative;
-  srcType::Type{<:VariableStateType} = getVariableType(fg, srcLabel) |> typeof,
+  srcType::Type{<:StateType} = getVariableType(fg, srcLabel) |> typeof,
   doRef::Bool = true,
   refKey::Symbol = :simulated,
   prior = if !doRef
@@ -299,9 +299,9 @@ function _checkVariableByReference(
   fg::AbstractDFG,
   srcLabel::Symbol,
   destRegex::Regex,
-  destType::Type{<:VariableStateType},
+  destType::Type{<:StateType},
   factor::AbstractPrior;
-  srcType::Type{<:VariableStateType} = getVariableType(fg, srcLabel) |> typeof,
+  srcType::Type{<:StateType} = getVariableType(fg, srcLabel) |> typeof,
   doRef::Bool = true,
   refKey::Symbol = :simulated,
   prior = typeof(factor)(MvNormal(getMeasurementParametric(factor)...)),

@@ -143,14 +143,14 @@ function transferUpdateSubGraph!(
 
   # transfer specific fields into dest from src
   @time for var in (x -> getVariable(src, x)).(syms)
-    # NOTE compared copytoVariableState! vs surgical updateVariableSolverData!
+    # NOTE compared copytoState! vs surgical updateVariableSolverData!
     # updateVariableSolverData! 0.000626 seconds (1.11 k allocations: 114.289 KiB)
-    # copytoVariableState! 0.000099 seconds (315 allocations: 27.758 KiB)
-    DFG.copytoVariableState!(
+    # copytoState! 0.000099 seconds (315 allocations: 27.758 KiB)
+    DFG.copytoState!(
       dest,
       getLabel(var),
       solveKey,
-      getVariableState(var, solveKey),
+      getState(var, solveKey),
     )
 
     if updatePPE

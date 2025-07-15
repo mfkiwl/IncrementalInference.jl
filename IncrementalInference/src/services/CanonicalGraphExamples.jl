@@ -178,9 +178,9 @@ function generateGraph_LineStep(
       return noisy ? Normal(σ * randn() + i, σ) : Normal(0.0 * randn() + i, σ)
     else
       return if noisy
-        MvNormal(σ * randn(vardims) .+ i, σ)
+        MvNormal(σ * randn(vardims) .+ i, σ*I)
       else
-        MvNormal(0.0 * randn(vardims) .+ i, σ)
+        MvNormal(0.0 * randn(vardims) .+ i, σ*I)
       end
     end
   end

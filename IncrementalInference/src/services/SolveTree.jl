@@ -58,7 +58,7 @@ function doFMCIteration(
   #
 
   vert = DFG.getVariable(fgl, vsym)
-  if !getVariableState(vert, solveKey).ismargin
+  if !getState(vert, solveKey).ismargin
     # potprod = nothing
     dens, ipc = propagateBelief(
       fgl,

@@ -316,7 +316,7 @@ end
 
 Multiple dispatch wrapper for `<:AbstractRelative` types, to prepare and execute the general approximate convolution with user defined factor residual functions.  This method also supports multihypothesis operations as one mechanism to introduce new modality into the proposal beliefs.
 
-Planned changes will fold null hypothesis in as a standard feature and no longer appear as a separate `VariableStateType`.
+Planned changes will fold null hypothesis in as a standard feature and no longer appear as a separate `StateType`.
 """
 function evalPotentialSpecific(
   variables::AbstractVector{<:VariableCompute},
@@ -610,7 +610,7 @@ This temporary function can be run without passing a factor graph object, but wi
 Alternatively, the factor graph used for calculations can be passed in via the keyword `tfg`, hence the function name bang.
 
 Notes
-- `TypeParams_args::Vector{Tuple{VariableStateType, P}}
+- `TypeParams_args::Vector{Tuple{StateType, P}}
 - idea is please find best e.g. `b`, given `f(z,a,b,c)` either by roots or minimize (depends on definition of `f`)
 - `sfidx::Int` is the solve for index, assuming `getVariableOrder(fct)`.
 

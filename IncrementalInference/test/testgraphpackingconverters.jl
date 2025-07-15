@@ -64,12 +64,12 @@ end
 @testset "Testing conversion to packed variable node data structure and back" begin
 ##
 
-dat = getVariableState(getVariable(fg,:x1), :default)
+dat = getState(getVariable(fg,:x1), :default)
 
 # dat.BayesNetVertID
 
-pd = packVariableState(dat)
-unpckd = unpackVariableState(pd)
+pd = packState(dat)
+unpckd = unpackState(pd)
 
 @test compareFields(dat, unpckd, skip=[:variableType])
 @test compareFields(getVariableType(dat), getVariableType(unpckd))

@@ -529,7 +529,7 @@ function autoinitParametric!(
   #
 
   initme = getLabel(xi)
-  vnd = getVariableState(xi, solveKey)
+  vnd = getState(xi, solveKey)
   # don't initialize a variable more than once
   if reinit || !isInitialized(xi, solveKey)
 
@@ -546,7 +546,7 @@ function autoinitParametric!(
       return false
     end
 
-    vnd::VariableNodeData = getVariableState(xi, solveKey)
+    vnd::VariableNodeData = getState(xi, solveKey)
     
     if perturb_point
       _M = getManifold(xi)
