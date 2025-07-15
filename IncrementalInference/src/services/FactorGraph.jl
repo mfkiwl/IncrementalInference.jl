@@ -69,7 +69,7 @@ end
 Get the number of points used for the current marginal belief estimate represtation for a particular variable in the factor graph.
 """
 function getNumPts(v::VariableCompute; solveKey::Symbol = :default)::Int
-  return length(getVal(getVariableState(v, solveKey)))
+  return length(getVal(getState(v, solveKey)))
 end
 
 function AMP.getBW(vnd::VariableNodeData)
@@ -78,14 +78,14 @@ end
 
 # setVal! assumes you will update values to database separate, this used for local graph mods only
 function getBWVal(v::VariableCompute; solveKey::Symbol = :default)
-  return getVariableState(v, solveKey).bw
+  return getState(v, solveKey).bw
 end
 function setBW!(vd::VariableNodeData, bw::Array{Float64, 2}; solveKey::Symbol = :default)
   vd.bw = bw
   return nothing
 end
 function setBW!(v::VariableCompute, bw::Array{Float64, 2}; solveKey::Symbol = :default)
-  setBW!(getVariableState(v, solveKey), bw)
+  setBW!(getState(v, solveKey), bw)
   return nothing
 end
 
@@ -98,7 +98,7 @@ function setVal!(
   val::AbstractVector{P};
   solveKey::Symbol = :default,
 ) where {P}
-  setVal!(getVariableState(v, solveKey), val)
+  setVal!(getState(v, solveKey), val)
   return nothing
 end
 function setVal!(
@@ -134,7 +134,7 @@ function setVal!(
   bw::AbstractVector{Float64};
   solveKey::Symbol = :default,
 ) where {P}
-  setVal!(getVariableState(v, solveKey), val, bw)
+  setVal!(getState(v, solveKey), val, bw)
   return nothing
 end
 function setVal!(
@@ -192,7 +192,7 @@ function setValKDE!(
   solveKey::Symbol = :default,
 ) where {P}
   # recover variableType information
-  setValKDE!(getVariableState(v, solveKey), val, bws[:, 1], setinit, ipc)
+  setValKDE!(getState(v, solveKey), val, bws[:, 1], setinit, ipc)
 
   return nothing
 end
@@ -205,7 +205,7 @@ function setValKDE!(
   solveKey::Symbol = :default,
   ppeType::Type{T} = MeanMaxPPE,
 ) where {P, T}
-  vnd = getVariableState(v, solveKey)
+  vnd = getState(v, solveKey)
   # recover variableType information
   setValKDE!(vnd, val, setinit, ipc)
   setPPE!(v; solveKey, ppeType)
@@ -231,7 +231,7 @@ function setValKDE!(
 )
   #
   # @error("TESTING setValKDE! ", solveKey, string(listSolveKeys(v)))
-  setValKDE!(getVariableState(v, solveKey), mkd, setinit, Float64.(ipc))
+  setValKDE!(getState(v, solveKey), mkd, setinit, Float64.(ipc))
   return nothing
 end
 function setValKDE!(
@@ -306,7 +306,7 @@ function setVariableInitialized!(varid::VariableNodeData, status::Bool)
 end
 
 function setVariableInitialized!(vari::VariableCompute, solveKey::Symbol, status::Bool)
-  return setVariableInitialized!(getVariableState(vari, solveKey), status)
+  return setVariableInitialized!(getState(vari, solveKey), status)
 end
 
 """
@@ -320,7 +320,7 @@ function setIPC!(
   val::AbstractVector{<:Real},
   solveKey::Symbol = :default,
 )
-  return setVariableIPC!(getVariableState(vari, solveKey), val)
+  return setVariableIPC!(getState(vari, solveKey), val)
 end
 
 ## ==============================================================================================
@@ -336,7 +336,7 @@ function getBelief(vnd::VariableNodeData)
 end
 
 function getBelief(v::VariableCompute, solvekey::Symbol = :default)
-  return getBelief(getVariableState(v, solvekey))
+  return getBelief(getState(v, solvekey))
 end
 function getBelief(dfg::AbstractDFG, lbl::Symbol, solvekey::Symbol = :default)
   return getBelief(getVariable(dfg, lbl), solvekey)
@@ -363,18 +363,18 @@ function resetVariable!(varid::VariableNodeData)
 end
 
 function resetVariable!(vari::VariableCompute, solveKey::Symbol = :default)
-  return resetVariable!(getVariableState(vari, solveKey))
+  return resetVariable!(getState(vari, solveKey))
 end
 
 function resetVariable!(dfg::AbstractDFG, sym::Symbol, solveKey::Symbol = :default)
-  return resetVariable!(getVariableState(dfg, sym, solveKey))
+  return resetVariable!(getState(dfg, sym, solveKey))
 end
 
 # return VariableNodeData
 function DefaultNodeDataParametric(
   dodims::Int,
   dims::Int,
-  variableType::VariableStateType;
+  variableType::StateType;
   initialized::Bool = true,
   dontmargin::Bool = false,
   solveKey::Symbol = :parametric
@@ -427,12 +427,12 @@ DevNotes
 """
 function setDefaultNodeDataParametric!(
   v::VariableCompute,
-  variableType::VariableStateType;
+  variableType::StateType;
   solveKey::Symbol = :parametric,
   kwargs...,
 )
   vnd = DefaultNodeDataParametric(0, variableType |> getDimension, variableType; solveKey, kwargs...)
-  mergeVariableState!(v, vnd)
+  mergeState!(v, vnd)
   nothing
 end
 
@@ -479,7 +479,7 @@ function setDefaultNodeData!(
     (val, bw)
   end
   # make and set the new solverData
-  mergeVariableState!(
+  mergeState!(
     v,
     VariableNodeData(varType;
       id=nothing,
@@ -549,12 +549,12 @@ function setVariableRefence!(
   )
   #
   # set the value in the VariableCompute
-  return mergeVariableState!(var, vnd)
+  return mergeState!(var, vnd)
 end
 
 # get instance from variableType
-_variableType(varType::VariableStateType) = varType
-_variableType(varType::Type{<:VariableStateType}) = varType()
+_variableType(varType::StateType) = varType
+_variableType(varType::Type{<:StateType}) = varType()
 
 ## ==================================================================================================
 ## DFG Overloads on addVariable! and addFactor!
@@ -563,7 +563,7 @@ _variableType(varType::Type{<:VariableStateType}) = varType()
 """
 $(SIGNATURES)
 
-Add a variable node `label::Symbol` to `dfg::AbstractDFG`, as `varType<:VariableStateType`.
+Add a variable node `label::Symbol` to `dfg::AbstractDFG`, as `varType<:StateType`.
 
 Notes
 -----
@@ -590,7 +590,7 @@ function addVariable!(
   smalldata = Dict{Symbol, DFG.SmallDataTypes}(),
   checkduplicates::Bool = true,
   initsolvekeys::Vector{Symbol} = getSolverParams(dfg).algorithms,
-) where {T <: VariableStateType}
+) where {T <: StateType}
   #
   varType = _variableType(varTypeU)
 

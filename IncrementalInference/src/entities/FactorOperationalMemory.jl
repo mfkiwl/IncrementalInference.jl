@@ -27,7 +27,7 @@ Base.@kwdef struct CommonConvWrapper{
   HR <: HypoRecipeCompute,
   MT, 
   G
-} <: FactorSolverCache
+} <: FactorCache
   # Basic factor topological info
   """ Values consistent across all threads during approx convolution """
   usrfnc!::T # user factor / function

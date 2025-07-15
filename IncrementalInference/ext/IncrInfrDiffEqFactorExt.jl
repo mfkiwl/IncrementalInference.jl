@@ -67,7 +67,7 @@ _maketuplebeyond2args = (w1 = nothing, w2 = nothing, w3_...) -> (w3_...,)
 
 function DERelative(
   Xi::AbstractVector{<:VariableCompute},
-  domain::Type{<:VariableStateType},
+  domain::Type{<:StateType},
   f::Function,
   data = () -> ();
   dt::Real = 1,
@@ -94,7 +94,7 @@ end
 function DERelative(
   dfg::AbstractDFG,
   labels::AbstractVector{Symbol},
-  domain::Type{<:VariableStateType},
+  domain::Type{<:StateType},
   f::Function,
   data = () -> ();
   Xi::AbstractArray{<:VariableCompute} = getVariable.(dfg, labels),

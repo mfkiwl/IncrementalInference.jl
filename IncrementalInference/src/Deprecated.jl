@@ -120,7 +120,7 @@ function solveGraphParametric2(
   flatvar = FlatVariables(fg, varIds)
 
   for vId in varIds
-    p = getVariableState(fg, vId, solvekey).val[1]
+    p = getState(fg, vId, solvekey).val[1]
     flatvar[vId] = getCoordinates(getVariableType(fg, vId), p)
   end
 

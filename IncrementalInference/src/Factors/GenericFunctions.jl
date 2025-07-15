@@ -254,7 +254,7 @@ function convert(
 )
   #
 
-  # piggy back on serialization of VariableStateType rather than try serialize anything Manifolds.jl
+  # piggy back on serialization of StateType rather than try serialize anything Manifolds.jl
   M = DFG.getTypeFromSerializationModule(obj.varType) |> getManifold
 
   # TODO this is too excessive

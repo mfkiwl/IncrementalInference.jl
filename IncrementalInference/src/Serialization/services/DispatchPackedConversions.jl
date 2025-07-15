@@ -5,7 +5,7 @@
 function convert(
   ::Type{PackedFunctionNodeData{P}},
   d::FunctionNodeData{T},
-) where {P <: AbstractPackedFactor, T <: FactorSolverCache}
+) where {P <: AbstractPackedFactor, T <: FactorCache}
   error("TODO remove. PackedFunctionNodeData is obsolete")
   return PackedFunctionNodeData(
     d.eliminated,
@@ -143,7 +143,7 @@ function DFG.rebuildFactorCache!(
 
   #   factor__
   # else
-  #   mergeVariableState!(factor, new_solverData)
+  #   mergeState!(factor, new_solverData)
   #   DFG.setCache!(factor, solvercache)
   #   # We're not updating here because we don't want
   #   # to solve cloud in loop, we want to make sure this flow works:

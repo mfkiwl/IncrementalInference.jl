@@ -68,7 +68,7 @@ Get the CommonConvWrapper for this factor.
 function _getCCW(gfnd::GenericFunctionNodeData)
   error("_getCCW(gfnd::GenericFunctionNodeData) is deprecated, use DFG.getCache instead.")
 end
-_getCCW(fct::FactorCompute) = DFG.getCache(fct) #getVariableState(fct) |> _getCCW
+_getCCW(fct::FactorCompute) = DFG.getCache(fct) #getState(fct) |> _getCCW
 _getCCW(dfg::AbstractDFG, lbl::Symbol) = DFG.getCache(getFactor(dfg, lbl)) #getFactor(dfg, lbl) |> _getCCW
 
 DFG.getFactorType(ccw::CommonConvWrapper) = ccw.usrfnc!
@@ -118,7 +118,7 @@ getFactorDim(fg::AbstractDFG, fctid::Symbol) = getFactorDim(getFactor(fg, fctid)
 
 # extend convenience function (Matrix or Vector{P})
 function manikde!(
-  variableType::Union{InstanceType{<:VariableStateType}, InstanceType{<:AbstractFactor}},
+  variableType::Union{InstanceType{<:StateType}, InstanceType{<:AbstractFactor}},
   pts::AbstractVector{P};
   kw...,
 ) where {P <: Union{<:AbstractArray, <:Number, <: ArrayPartition}}
@@ -130,7 +130,7 @@ function manikde!(
 end
 
 function manikde!(
-  varT::InstanceType{<:VariableStateType},
+  varT::InstanceType{<:StateType},
   pts::AbstractVector{<:Tuple};
   kw...,
 )
@@ -174,7 +174,7 @@ function setfreeze!(dfg::AbstractDFG, sym::Symbol, solveKey::Symbol = :default)
     return nothing
   end
   vert = DFG.getVariable(dfg, sym)
-  data = getVariableState(vert, solveKey)
+  data = getState(vert, solveKey)
   data.ismargin = true
   return nothing
 end
@@ -212,8 +212,8 @@ function fifoFreeze!(dfg::AbstractDFG)
   return nothing
 end
 
-DFG.getPoint(typ::VariableStateType, w...; kw...) = getPoint(typeof(typ), w...; kw...)
-function DFG.getCoordinates(typ::VariableStateType, w...; kw...)
+DFG.getPoint(typ::StateType, w...; kw...) = getPoint(typeof(typ), w...; kw...)
+function DFG.getCoordinates(typ::StateType, w...; kw...)
   return getCoordinates(typeof(typ), w...; kw...)
 end
 
@@ -238,7 +238,7 @@ Related
 """
 function calcPPE(
   var::VariableCompute,
-  varType::VariableStateType = getVariableType(var);
+  varType::StateType = getVariableType(var);
   ppeType::Type{<:MeanMaxPPE} = MeanMaxPPE,
   solveKey::Symbol = :default,
   ppeKey::Symbol = solveKey
@@ -552,7 +552,7 @@ function setPPE!(
   newPPEVal::T = calcPPE(variable; ppeType = ppeType, solveKey = solveKey),
 ) where {T <: AbstractPointParametricEst}
   #
-  # vnd = getVariableState(variable, solveKey)
+  # vnd = getState(variable, solveKey)
 
   #TODO in the future one can perhaps populate other solver data types here by looking at the typeof ppeDict entries
   getPPEDict(variable)[solveKey] = newPPEVal

@@ -39,7 +39,7 @@ end
 export getCoordSizes
 export checkGradientsToleranceMask, calcPerturbationFromVariable
 
-# T_pt_args[:] = [(T1::Type{<:VariableStateType}, point1); ...]
+# T_pt_args[:] = [(T1::Type{<:StateType}, point1); ...]
 # FORCED TO START AT EITHER :x1
 function _prepFactorGradientLambdas(
   fct::RelativeObservation,

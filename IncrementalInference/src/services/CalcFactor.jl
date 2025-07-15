@@ -10,7 +10,7 @@ function _getDimensionsPartial(ccw::CommonConvWrapper)
 end
 function _getDimensionsPartial(data::GenericFunctionNodeData)
   Base.depwarn(
-    "_getDimensionsPartial(data::GenericFunctionNodeData) is deprecated, use solvercache <: FactorSolverCache instead",
+    "_getDimensionsPartial(data::GenericFunctionNodeData) is deprecated, use solvercache <: FactorCache instead",
     :_getDimensionsPartial,
   ) 
   return _getCCW(data) |> _getDimensionsPartial
@@ -188,7 +188,7 @@ function calcFactorResidualTemporary(
 end
 
 ## =============================================================================================
-## FactorSolverCache helper constructors
+## FactorCache helper constructors
 ## =============================================================================================
 
 
@@ -235,7 +235,7 @@ Notes
 - `maxlen` is length of all (possibly resampled) `ARR` contained particles.
 - `Xi` is order sensitive.
 - for initialization, solveFor = Nothing.
-- `P = getPointType(<:VariableStateType)`
+- `P = getPointType(<:StateType)`
 """
 function _createVarValsAll(
   variables::AbstractVector{<:VariableCompute};

@@ -9,7 +9,7 @@ Notes
   - Future TBD, consider using `AMP.getManifoldPartial` for more general abstraction.
 """
 struct PartialPrior{T <: SamplableBelief, P <: Tuple} <: AbstractPrior
-  varType::Type{<:VariableStateType}
+  varType::Type{<:StateType}
   Z::T
   partial::P
 end

@@ -49,7 +49,7 @@ function DFG.packDistribution(mkd::ManifoldKernelDensity)
 
   return PackedManifoldKernelDensity(
     "IncrementalInference.PackedManifoldKernelDensity",
-    # piggy back on VariableStateType serialization rather than try serialize anything Manifolds.jl
+    # piggy back on StateType serialization rather than try serialize anything Manifolds.jl
     DFG.typeModuleName(getVariableType(mkd.manifold)),
     [AMP.makeCoordsFromPoint(mkd.manifold, pt) for pt in pts],
     getBW(mkd.belief)[:, 1],
@@ -59,7 +59,7 @@ function DFG.packDistribution(mkd::ManifoldKernelDensity)
 end
 
 function DFG.unpackDistribution(dtr::PackedManifoldKernelDensity)
-  # find VariableStateType type from string (anything Manifolds.jl?)
+  # find StateType type from string (anything Manifolds.jl?)
   M = DFG.getTypeFromSerializationModule(dtr.varType) |> getManifold
   vecP = [AMP.makePointFromCoords(M, pt) for pt in dtr.pts]
   bw = length(dtr.bw) === 0 ? nothing : dtr.bw

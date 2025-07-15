@@ -180,13 +180,13 @@ function doautoinit!(
         setVariablePosteriorEstimates!(dfg, xi.label, solveKey)
         # Update the data in the event that it's not local
         # TODO perhaps use merge, but keeping to deepcopy as update variant used was set to copy.
-        DFG.copytoVariableState!(dfg, xi.label, solveKey, getVariableState(xi, solveKey))
+        DFG.copytoState!(dfg, xi.label, solveKey, getState(xi, solveKey))
         # deepcopy graphinit value, see IIF #612
-        DFG.copytoVariableState!(
+        DFG.copytoState!(
           dfg,
           xi.label,
           :graphinit,
-          getVariableState(xi, solveKey),
+          getState(xi, solveKey),
         )
         didinit = true
       end
@@ -348,7 +348,7 @@ function initVariable!(
   M = getManifold(variable)
   if solveKey == :parametric
     μ, iΣ = getMeasurementParametric(samplable_belief)
-    vnd = getVariableState(variable, solveKey)
+    vnd = getState(variable, solveKey)
     vnd.val[1] = getPoint(getVariableType(variable), μ)
     vnd.bw .= inv(iΣ)
     vnd.initialized = true
@@ -446,10 +446,10 @@ function resetInitialValues!(
 )
   #
   for vs in varList
-    vnd = getVariableState(getVariable(src, vs), initKey)
+    vnd = getState(getVariable(src, vs), initKey)
     # guess we definitely want to use copy to preserve the initKey memory
     # updateVariableSolverData!(dest, vs, vnd, solveKey, true; warn_if_absent = false)
-    DFG.copytoVariableState!(
+    DFG.copytoState!(
       dest,
       vs,
       solveKey,
