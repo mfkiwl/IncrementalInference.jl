@@ -53,14 +53,17 @@ for i in 1:3
   # another point in the trajectory 5 seconds later
   addVariable!(fg, nextSym, Position{1}, timestamp=DateTime(2000,1,1,0,0,5*i))
   # build factor against manifold Manifolds.TranslationGroup(1)
-  ode_fac = IIF.DERelative(fg, [prev; nextSym], 
-                        Position{1}, 
-                        firstOrder!,
-                        tstForce,
-                        dt=0.05, 
-                        problemType=ODEProblem )
+  ode_fac = IIF.DERelative(
+    fg, [prev; nextSym],
+    Position{1},
+    firstOrder!,
+    tstForce,
+    dt=0.05,
+    problemType=ODEProblem,
+    keepSolution = i == 1,
+  )
   #
-  addFactor!( fg, [prev;nextSym], ode_fac, graphinit=false )
+  addFactor!( fg, [prev;nextSym], ode_fac, graphinit=false, keepCalcFactor = i == 1 )
   initVariable!(fg, nextSym, [0.1*randn(1) for _ in 1:100])
 
   prev = nextSym
@@ -76,6 +79,10 @@ oder_ = DERelative( fg, [:x0; :x3],
                     tstForce, 
                     dt=0.05, 
                     problemType=ODEProblem )
+
+
+
+##
 
 oder_.forwardProblem.u0 .= [1.0]
 sl = DifferentialEquations.solve(oder_.forwardProblem)
@@ -117,14 +124,18 @@ meas = sampleFactor(fg, :x0x1f1, 10)
 
 
 ## do all forward solutions
+chnl = Channel(100)
+
 
 pts = sampleFactor(fg, :x0f1, 100)
 
 initVariable!(fg, :x0, pts)
-pts_ = approxConv(fg, :x0x1f1, :x1)
+pts_ = approxConv(fg, :x0x1f1, :x1; keepCalcFactor=chnl)
 @cast pts[i,j] := pts_[j][i]
 @test 0.3 < Statistics.mean(pts) < 0.4
 
+ccf = take!(chnl)
+@test 50 < length(ccf.factor.keepSolution)
 
 ## check that the reverse solve also works
 
@@ -210,6 +221,10 @@ X2_,_ = propagateBelief(fg, :x2, :)
 
 smtasks = Task[]
 tree = solveTree!(fg; smtasks, recordcliqs=ls(fg));
+
+oder_.keepSolution
+
+
 hists = fetchCliqHistoryAll!(smtasks)
 
 printCSMHistoryLogical(hists)
