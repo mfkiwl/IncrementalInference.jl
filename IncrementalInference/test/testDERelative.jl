@@ -46,8 +46,6 @@ doautoinit!(fg, :x0)
 
 prev = :x0
 
-# chnl = Channel(100)
-
 for i in 1:3
 
   nextSym = Symbol("x$i")
@@ -126,14 +124,18 @@ meas = sampleFactor(fg, :x0x1f1, 10)
 
 
 ## do all forward solutions
+chnl = Channel(100)
+
 
 pts = sampleFactor(fg, :x0f1, 100)
 
 initVariable!(fg, :x0, pts)
-pts_ = approxConv(fg, :x0x1f1, :x1)
+pts_ = approxConv(fg, :x0x1f1, :x1; keepCalcFactor=chnl)
 @cast pts[i,j] := pts_[j][i]
 @test 0.3 < Statistics.mean(pts) < 0.4
 
+ccf = take!(chnl)
+@test 50 < length(ccf.factor.keepSolution)
 
 ## check that the reverse solve also works
 
