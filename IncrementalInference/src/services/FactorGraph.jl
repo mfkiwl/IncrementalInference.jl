@@ -724,7 +724,7 @@ function getDefaultFactorData(
   inflation::Real = getSolverParams(dfg).inflation,
   _blockRecursion::Bool = false,
   keepCalcFactor::Bool = false,
-) where {T <: AbstractFactor}
+)
   #
   
   # prepare multihypo particulars

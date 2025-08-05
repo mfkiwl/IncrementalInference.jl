@@ -162,7 +162,7 @@ end
 # function JacF_RLM!(M, costF!; basis_domain::AbstractBasis = DefaultOrthonormalBasis())
 function JacF_RLM!(M, costF!, p, fg=nothing;
   all_points=p,
-  basis_domain::AbstractBasis = DefaultOrthogonalBasis(),
+  basis_domain::AbstractBasis = LieGroups.DefaultLieAlgebraOrthogonalBasis(),
   is_sparse=!isnothing(fg)
 )
 
@@ -171,6 +171,7 @@ function JacF_RLM!(M, costF!, p, fg=nothing;
   X0 = zeros(manifold_dimension(M))
   
   X = get_vector(M, p, X0, basis_domain)
+  # X = vee(LieAlgebra(M), X0)
 
   q = exp(M, p, X)
 
@@ -212,7 +213,7 @@ function (jacF!::JacF_RLM!)(
   cache = jacF!.Jcache
   
   fill!(X0, 0)
-  
+
   # TODO make sure closure performs (let, ::, or (jacF!::JacF_RLM!)(res, Xc))
   function costf!(res, Xc)
     get_vector!(M, X, p, Xc, basis_domain)
@@ -414,7 +415,7 @@ function solve_RLM_conditional(
 
   # get the subgraph formed by all frontals, separators and fully connected factors
   varlabels = union(frontals, separators)
-  faclabels = sortDFG(setdiff(getNeighborhood(fg, varlabels, 1), varlabels))
+  faclabels = sortDFG(setdiff(listNeighborhood(fg, varlabels, 1), varlabels))
 
   filter!(faclabels) do fl
     return issubset(getVariableOrder(fg, fl), varlabels)

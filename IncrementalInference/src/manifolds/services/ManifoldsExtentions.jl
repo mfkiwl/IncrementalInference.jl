@@ -9,20 +9,19 @@
     
 Adapts Manifolds.jl manifolds for use in Optim.jl
 """
-struct ManifoldWrapper{TM<:AbstractManifold} <: Optim.Manifold
-    M::TM
+struct ManifoldWrapper{TM <: AbstractManifold} <: Optim.Manifold
+  M::TM
 end
 
 function Optim.retract!(M::ManifoldWrapper, x)
-    ManifoldsBase.embed_project!(M.M, x, x)
-    return x
+  ManifoldsBase.embed_project!(M.M, x, x)
+  return x
 end
 
 function Optim.project_tangent!(M::ManifoldWrapper, g, x)
-    ManifoldsBase.embed_project!(M.M, g, x, g)
-    return g
+  ManifoldsBase.embed_project!(M.M, g, x, g)
+  return g
 end
-
 
 ## ================================================================================================
 ## AbstractPowerManifold with N as field to avoid excessive compiling time.
@@ -41,7 +40,7 @@ end
 
 function Manifolds.get_vector!(M::NPowerManifold, Y, p, c, B::AbstractBasis)
   dim = manifold_dimension(M.manifold)
-  rep_size = representation_size(M.manifold)
+  rep_size = Manifolds.representation_size(M.manifold)
   v_iter = 1
   for i in Manifolds.get_iterator(M)
     Y[i] = get_vector(
@@ -57,7 +56,7 @@ function Manifolds.get_vector!(M::NPowerManifold, Y, p, c, B::AbstractBasis)
 end
 
 function Manifolds.exp!(M::NPowerManifold, q, p, X)
-  rep_size = representation_size(M.manifold)
+  rep_size = Manifolds.representation_size(M.manifold)
   for i in Manifolds.get_iterator(M)
     q[i] = exp(
       M.manifold,
@@ -99,21 +98,45 @@ end
 
 import DistributedFactorGraphs: getPointIdentity
 
+# fallback 
+function DFG.getPointIdentity(G::AbstractLieGroup, ::Type{T} = Float64) where {T <: Real}
+  # error("getPointIdentity not implemented for $G.")
+  @warn("getPointIdentity not implemented on $G, falling back to identity_element")
+  return identity_element(G)
+end
+
+function DFG.getPointIdentity(M::ProductManifold, ::Type{T} = Float64) where {T <: Real}
+  return ArrayPartition(map(x -> getPointIdentity(x, T), M.manifolds))
+end
+
 function DFG.getPointIdentity(G::ProductGroup, ::Type{T} = Float64) where {T <: Real}
   M = G.manifold
   return ArrayPartition(map(x -> getPointIdentity(x, T), M.manifolds))
 end
 
-# fallback 
-function DFG.getPointIdentity(G::GroupManifold, ::Type{T} = Float64) where {T <: Real}
-  return error("getPointIdentity not implemented on $G")
+function DFG.getPointIdentity(
+  G::LieGroups.TranslationGroup{ℝ, TypeParameter{Tuple{N}}},
+  ::Type{T} = Float64,
+) where {N, T <: Real}
+  return zeros(SVector{N, T})
+end
+
+#TODO test
+function DFG.getPointIdentity(
+  PrG::AbstractLieGroup{𝔽, Op, M},
+  ::Type{T} = Float64,
+) where {𝔽, Op <: AbstractProductGroupOperation, M <: ProductManifold, T <: Real}
+  PrM = PrG.manifold
+  ε = map(G -> getPointIdentity(G, T), map(LieGroup, PrM.manifolds, PrG.op.operations))
+  return ArrayPartition(ε)
 end
 
 function DFG.getPointIdentity(
-  @nospecialize(G::ProductManifold),
+  VG::LieGroups.ValidationLieGroup,
   ::Type{T} = Float64,
 ) where {T <: Real}
-  return ArrayPartition(map(x -> getPointIdentity(x, T), G.manifolds))
+  G = VG.lie_group
+  return LieGroups.ValidationMPoint(getPointIdentity(G, T))
 end
 
 function DFG.getPointIdentity(
@@ -128,28 +151,40 @@ function DFG.getPointIdentity(M::NPowerManifold, ::Type{T} = Float64) where {T <
   return fill(getPointIdentity(M.manifold, T), M.N)
 end
 
-function DFG.getPointIdentity(G::SemidirectProductGroup, ::Type{T} = Float64) where {T <: Real}
-  M = base_manifold(G)
-  N, H = M.manifolds
-  np = getPointIdentity(N, T)
-  hp = getPointIdentity(H, T)
-  return ArrayPartition(np, hp)
+function DFG.getPointIdentity(
+  ::typeof(SpecialEuclideanGroup(2; variant = :right)),
+  ::Type{T} = Float64,
+) where {T <: Real}
+  N = 2
+  return ArrayPartition(zeros(SVector{N, T}), SMatrix{N, N, T}(I))
 end
 
 function DFG.getPointIdentity(
-  G::SpecialOrthogonal{TypeParameter{Tuple{N}}},
-  ::Type{T} = Float64
+  ::typeof(SpecialEuclideanGroup(3; variant = :right)),
+  ::Type{T} = Float64,
+) where {T}
+  N = 3
+  return ArrayPartition(zeros(SVector{N, T}), SMatrix{N, N, T}(I))
+end
+
+function DFG.getPointIdentity(
+  G::SpecialOrthogonalGroup{TypeParameter{Tuple{N}}},
+  ::Type{T} = Float64,
 ) where {N, T <: Real}
   return SMatrix{N, N, T}(I)
 end
 
 function DFG.getPointIdentity(
-  G::TranslationGroup{TypeParameter{Tuple{N}}},
+  G::LieGroups.TranslationGroup{TypeParameter{Tuple{N}}},
   ::Type{T} = Float64,
 ) where {N, T <: Real}
-  return zeros(SVector{N,T})
+  return zeros(SVector{N, T})
 end
 
-function DFG.getPointIdentity(G::RealCircleGroup, ::Type{T} = Float64) where {T <: Real}
+function DFG.getPointIdentity(G::AbstractLieGroup{ℝ,AdditionGroupOperation,<:Circle{ℝ}}, ::Type{T} = Float64) where {T <: Real}
   return [zero(T)] #FIXME we cannot support scalars yet
+end
+
+function DFG.getPointIdentity(G::typeof(LieGroups.CircleGroup()), ::Type{T} = Float64) where {T <: Real}
+  return fill(Complex{T}(1,0))
 end

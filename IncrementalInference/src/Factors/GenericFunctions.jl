@@ -13,8 +13,8 @@ function DFG.getDimension(Z::FluxModelsDistribution)
     Z.outputDim[1]
   else
     error(
-    "can only do single index tensor at this time, please open an issue with Caesar.jl",
-  )
+      "can only do single index tensor at this time, please open an issue with Caesar.jl",
+    )
   end
 end
 DFG.getDimension(Z::ManifoldKernelDensity) = getManifold(Z) |> getDimension
@@ -24,31 +24,29 @@ DFG.getDimension(Z::BallTreeDensity) = Ndim(Z)
 ## ======================================================================================
 ## Generic manifold cost functions
 ## ======================================================================================
-"""
-    $SIGNATURES
-Generic function that can be used in binary factors to calculate distance between points on Lie Groups with measurements.
-"""
-function distancePoint2Point(M::SemidirectProductGroup, m, p, q)
-  q̂ = Manifolds.compose(M, p, m)
-  # return log(M, q, q̂)
-  return vee(M, q, log(M, q, q̂))
-  # return distance(M, q, q̂)
-end
-
-#::MeasurementOnTangent
-function distanceTangent2Point(M::SemidirectProductGroup, X, p, q)
-  q̂ = Manifolds.compose(M, p, exp(M, getPointIdentity(M), X)) #for groups
-  # return log(M, q, q̂)
-  return vee(M, q, log(M, q, q̂))
-  # return distance(M, q, q̂)
-end
+# """
+#     $SIGNATURES
+# Generic function that can be used in binary factors to calculate distance between points on Lie Groups with measurements.
+# """
+# function distancePoint2Point(M::SemidirectProductGroup, m, p, q)
+#   q̂ = Manifolds.compose(M, p, m)
+#   # return log(M, q, q̂)
+#   return vee(M, q, log(M, q, q̂))
+#   # return distance(M, q, q̂)
+# end
 
 # ::MeasurementOnTangent
-function distanceTangent2Point(M::AbstractManifold, X, p, q)
-  q̂ = exp(M, p, X)
-  # return log(M, q, q̂)
-  return vee(M, q, log(M, q, q̂))
-  # return distance(M, q, q̂)
+function measurement_residual(G::AbstractLieGroup, X, p, q)
+  X̂ = log(G, p, q)
+  return vee(LieAlgebra(G), X - X̂) # TODO check sign with gradients, does not matter for cost so can't double check.
+end
+
+function prior_residual(G::AbstractLieGroup, m, p)
+  #TODO should it be TₘM or TₚM?
+  # Is the covariance that of the point m? If so, I would think it should be TₘM, but that doesn't seem to work.
+  X = log(G, p, m) # X ∈ TₚM, # this one gives the correct hex.
+  # X = log(G, m, p) # X ∈ TₘM, 
+  return vee(LieAlgebra(G), X)
 end
 
 """
@@ -69,10 +67,7 @@ export ManifoldFactor
 # For now, `Z` is on the tangent space in coordinates at the point used in the factor.
 # For groups just the lie algebra
 # As transition it will be easier this way, we can reevaluate
-struct ManifoldFactor{
-  M <: AbstractManifold, 
-  T <: SamplableBelief
-} <: RelativeObservation
+struct ManifoldFactor{M <: AbstractManifold, T <: SamplableBelief} <: RelativeObservation
   M::M
   Z::T
 end
@@ -96,14 +91,12 @@ end
 
 # function (cf::CalcFactor{<:ManifoldFactor{<:AbstractDecoratorManifold}})(Xc, p, q)
 function (cf::CalcFactor{<:ManifoldFactor})(X, p, q)
-  return distanceTangent2Point(cf.factor.M, X, p, q)
+  return measurement_residual(cf.factor.M, X, p, q)
 end
-
 
 ## ======================================================================================
 ## adjoint factor - adjoint action applied to the measurement
 ## ======================================================================================
-
 
 # Adjoints defined in ApproxManifoldProducts
 struct AdFactor{F <: RelativeObservation} <: RelativeObservation
@@ -147,7 +140,7 @@ end
 getMeasurementParametric(f::AdFactor) = getMeasurementParametric(f.factor)
 
 getManifold(f::AdFactor) = getManifold(f.factor)
-function getSample(cf::CalcFactor{<:AdFactor}) 
+function getSample(cf::CalcFactor{<:AdFactor})
   M = getManifold(cf)
   return sampleTangent(M, cf.factor.factor.Z)
 end
@@ -168,8 +161,8 @@ struct ManifoldPrior{M <: AbstractManifold, T <: SamplableBelief, P, B <: Abstra
   retract_method::AbstractRetractionMethod
 end
 
-function ManifoldPrior(M::AbstractDecoratorManifold, p, Z)
-  return ManifoldPrior(M, p, Z, ManifoldsBase.VeeOrthogonalBasis(), ExponentialRetraction())
+function ManifoldPrior(M::AbstractLieGroup, p, Z)
+  return ManifoldPrior(M, p, Z, DefaultLieAlgebraOrthogonalBasis(), MB.ExponentialRetraction())
 end
 
 DFG.getManifold(f::ManifoldPrior) = f.M
@@ -186,10 +179,19 @@ DFG.getManifold(f::ManifoldPrior) = f.M
 function getSample(cf::CalcFactor{<:ManifoldPrior})
   Z = cf.factor.Z
   p = cf.factor.p
-  M = cf.manifold # .factor.M
+  M = cf.factor.M
   basis = cf.factor.basis
   retract_method = cf.factor.retract_method
   point = samplePoint(M, Z, p, basis, retract_method)
+
+  return point
+end
+
+function getSample(cf::CalcFactor{<:ManifoldPrior{<:AbstractLieGroup}})
+  Z = cf.factor.Z
+  p = cf.factor.p
+  M = cf.factor.M
+  point = samplePoint(M, Z, p)
 
   return point
 end
@@ -199,18 +201,16 @@ function getFactorMeasurementParametric(fac::ManifoldPrior)
   dims = manifold_dimension(M)
   meas = fac.p
   iΣ = convert(SMatrix{dims, dims}, invcov(fac.Z))
-  meas, iΣ
+  return meas, iΣ
 end
 
 #TODO investigate SVector if small dims, this is slower
 # dim = manifold_dimension(M)
 # Xc = [SVector{dim}(rand(Z)) for _ in 1:N]
 
-function (cf::CalcFactor{<:ManifoldPrior})(m, p)
+function (cf::CalcFactor{<:ManifoldPrior{<:AbstractLieGroup}})(m, p)
   M = cf.factor.M
-  # return log(M, p, m)
-  return vee(M, p, log(M, p, m))
-  # return distancePrior(M, m, p)
+  return prior_residual(M, m, p)
 end
 
 # dist²_Σ = ⟨X, Σ⁻¹*X'⟩

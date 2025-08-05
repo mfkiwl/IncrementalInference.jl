@@ -13,7 +13,47 @@ using Reexport
 # @reexport using Graphs
 @reexport using LinearAlgebra
 
-using Manifolds
+import Manifolds
+using Manifolds:
+  Circle,
+  Euclidean,
+  ProductGroup,
+  AbstractDecoratorManifold,
+  get_vector,
+  ProductManifold,
+  PowerManifold,
+  GeodesicInterpolation,
+  DefaultOrthogonalBasis,
+  get_vector!
+using ManifoldsBase
+using ManifoldsBase:
+  ℝ,
+  AbstractManifold,
+  AbstractBasis,
+  TypeParameter,
+  AbstractRetractionMethod,
+  AbstractPowerManifold,
+  NestedReplacingPowerRepresentation,
+  retract,
+  ExponentialRetraction
+
+import LieGroups
+using LieGroups:
+  AbstractLieGroup,
+  LieGroup,
+  LieAlgebra,
+  ProductLieGroup,
+  hat,
+  vee,
+  compose,
+  AbstractProductGroupOperation,
+  AdditionGroupOperation,
+  SpecialEuclideanGroup,
+  SpecialOrthogonalGroup,
+  DefaultLieAlgebraOrthogonalBasis
+using LieGroups: TranslationGroup
+# using LieGroups: ProductGroupOperation, SemiDirectProductGroupOperation
+
 using RecursiveArrayTools: ArrayPartition
 export ArrayPartition
 using ManifoldDiff
@@ -44,8 +84,6 @@ using StructTypes
 
 using StaticArrays
 
-using ManifoldsBase
-using ManifoldsBase: TypeParameter
 # for BayesTree
 using MetaGraphs
 using Logging
@@ -114,8 +152,6 @@ include("ExportAPI.jl")
 
 # FIXME, move up to DFG
 # abstract type AbstractManifoldMinimize <: AbstractRelative end
-
-
 
 # regular
 
@@ -203,7 +239,6 @@ include("services/ExplicitDiscreteMarginalizations.jl")
 include("services/EvalFactor.jl")
 include("services/ApproxConv.jl")
 
-
 include("services/GraphProductOperations.jl")
 include("services/SolveTree.jl")
 include("services/TetherUtils.jl")
@@ -238,8 +273,6 @@ include("../ext/WeakDepsPrototypes.jl")
 
 # deprecation legacy support
 include("Deprecated.jl")
-
-
 
 @compile_workload begin
   # In here put "toy workloads" that exercise the code you want to precompile
