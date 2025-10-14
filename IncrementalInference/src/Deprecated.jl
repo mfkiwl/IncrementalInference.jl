@@ -155,12 +155,81 @@ function sampleTangent(x::ManifoldKernelDensity, p = mean(x))
   error("sampleTangent(x::ManifoldKernelDensity, p) should be replaced by sampleTangent(M<:AbstractManifold, x::ManifoldKernelDensity, p)")
 end
 
-## ================================================================================================
-## ================================================================================================
+export setPPE!, setVariablePosteriorEstimates!
+setPPE!(args...; kw...) = error("PPEs are obsolete (use `calcMeanMaxSuggested` provisionally), see DFG #1133")
+setVariablePosteriorEstimates!(args...; kw...) = error("PPEs are obsolete (use `calcMeanMaxSuggested` provisionally), see DFG #1133")
 
-# TODO maybe upstream to DFG
-DFG.MeanMaxPPE(solveKey::Symbol, suggested::StaticArray, max::StaticArray, mean::StaticArray) =
-  DFG.MeanMaxPPE(solveKey, Vector(suggested), Vector(max), Vector(mean))
+@deprecate calcPPE(
+  var::VariableCompute,
+  varType::StateType = getVariableType(var);
+  solveKey::Symbol = :default,
+  kwargs...,
+) calcMeanMaxSuggested(var, solveKey)
+
+@deprecate calcPPE(
+  dfg::AbstractDFG,
+  label::Symbol;
+  solveKey::Symbol = :default,
+  kwargs...,
+) calcMeanMaxSuggested(dfg, label, solveKey)
+
+export calcVariablePPE
+const calcVariablePPE = calcPPE
+
+#FIXME The next functions use PPEs and should be updated or deprecated
+# getPPESuggestedAll no external use
+# findVariablesNear used in 1 rome example
+"""
+    $SIGNATURES
+
+Return `::Tuple` with matching variable ID symbols and `Suggested` PPE values.
+
+Related
+
+getVariablePPE
+"""
+function getPPESuggestedAll(dfg::AbstractDFG, regexFilter::Union{Nothing, Regex} = nothing)
+  #
+  # get values
+  vsyms = listVariables(dfg, regexFilter) |> sortDFG
+  slamPPE = map(x -> getVariablePPE(dfg, x).suggested, vsyms)
+  # sizes to convert to matrix
+  rumax = zeros(Int, 2)
+  for ppe in slamPPE
+    rumax[2] = length(ppe)
+    rumax[1] = maximum(rumax)
+  end
+
+  # populate with values
+  XYT = zeros(length(slamPPE), rumax[1])
+  for i = 1:length(slamPPE)
+    XYT[i, 1:length(slamPPE[i])] = slamPPE[i]
+  end
+  return (vsyms, XYT)
+end
+
+"""
+    $SIGNATURES
+
+Find and return a `::Tuple` of variables and distances to `loc::Vector{<:Real}`.
+
+Related
+
+findVariablesNearTimestamp
+"""
+function findVariablesNear(
+  dfg::AbstractDFG,
+  loc::Vector{<:Real},
+  regexFilter::Union{Nothing, Regex} = nothing;
+  number::Int = 3,
+)
+  #
+
+  xy = getPPESuggestedAll(dfg, regexFilter)
+  dist = sum((xy[2][:, 1:length(loc)] .- loc') .^ 2; dims = 2) |> vec
+  prm = (dist |> sortperm)[1:number]
+  return (xy[1][prm], sqrt.(dist[prm]))
+end
 
 
 ## ================================================================================================

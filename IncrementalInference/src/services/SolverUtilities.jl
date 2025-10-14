@@ -190,6 +190,8 @@ function _buildGraphByFactorAndTypes!(
   return dfg, _dfgfct
 end
 
+#FIXME this function depended on obsolete PPEs and may currently be broken 
+#TODO test
 """
     $SIGNATURES
 
@@ -236,7 +238,7 @@ end
 # the point is that only the (0,20) values in newFactor are needed, all calculations are abstracted away.
 ```
 
-See also: [`RoME.generateGraph_Honeycomb!`](@ref), [`accumulateFactorMeans`](@ref), [`getPPE`](@ref)
+See also: [`RoME.generateGraph_Honeycomb!`](@ref), [`accumulateFactorMeans`](@ref)
 """
 function _checkVariableByReference(
   fg::AbstractDFG,
@@ -251,7 +253,7 @@ function _checkVariableByReference(
     nothing
   else
     DFG._getPriorType(srcType)(
-    MvNormal(getPPE(fg[srcLabel], refKey).suggested, diagm(ones(getDimension(srcType)))),
+    MvNormal(calcMeanMaxSuggested(fg, srcLabel, refKey).suggested, diagm(ones(getDimension(srcType)))),
   )
   end,
   atol::Real = 1e-2,
@@ -276,12 +278,9 @@ function _checkVariableByReference(
     accumulateFactorMeans(tfg, [:x0f1; :x0l0f1])
   end
 
-  ppe = DFG.MeanMaxPPE(refKey, refVal, refVal, refVal)
-
-  # now check if we already have a landmark at this location
   varLms = ls(fg, destRegex) |> sortDFG
   already = if doRef
-    ppeLms = getPPE.(getVariable.(fg, varLms), refKey) .|> x -> x.suggested
+    ppeLms = calcMeanMaxSuggested.(getVariable.(fg, varLms), refKey) .|> x -> x.suggested
     errmask = ppeLms .|> (x -> isapprox(x, refVal; atol = atol))
     any(errmask)
   else
@@ -322,10 +321,8 @@ function _checkVariableByReference(
     getMeasurementParametric(factor)[1]
   end
 
-  ppe = DFG.MeanMaxPPE(refKey, refVal, refVal, refVal)
+  ppe = (mean=refVal, max=refVal, suggested=refVal)
 
   # Nope does not exist, ppe, generated new variable label only
   return false, ppe, Symbol(destPrefix, srcNumber)
 end
-
-#
