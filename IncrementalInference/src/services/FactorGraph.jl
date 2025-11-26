@@ -53,14 +53,14 @@ reshapeVec2Mat(vec::Vector, rows::Int) = reshape(vec, rows, round(Int, length(ve
 
 Fetch the variable marginal joint sampled points.  Use [`getBelief`](@ref) to retrieve the full Belief object.
 """
-getVal(v::VariableCompute; solveKey::Symbol = :default) = v.solverDataDict[solveKey].val
+getVal(v::VariableCompute; solveKey::Symbol = :default) = v.states[solveKey].val
 function getVal(v::VariableCompute, idx::Int; solveKey::Symbol = :default)
-  return v.solverDataDict[solveKey].val[:, idx]
+  return v.states[solveKey].val[:, idx]
 end
 getVal(vnd::State) = vnd.val
 getVal(vnd::State, idx::Int) = vnd.val[:, idx]
 function getVal(dfg::AbstractDFG, lbl::Symbol; solveKey::Symbol = :default)
-  return getVariable(dfg, lbl).solverDataDict[solveKey].val
+  return getVariable(dfg, lbl).states[solveKey].val
 end
 
 """
@@ -166,7 +166,7 @@ function setValKDE!(
 
   setVal!(vd, pts, bws) # BUG ...al!(., val, . ) ## TODO -- this can be a little faster
   setinit ? (vd.initialized = true) : nothing
-  vd.infoPerCoord = ipc
+  vd.observability = ipc
   return nothing
 end
 
@@ -177,7 +177,7 @@ function setValKDE!(
   ipc::AbstractVector{<:Real} = [0.0;],
 ) where {P}
   # recover variableType information
-  varType = getVariableType(vd)
+  varType = getStateKind(vd)
   p = AMP.manikde!(varType, val)
   setValKDE!(vd, p, setinit, ipc)
   return nothing
@@ -312,7 +312,7 @@ end
 
 Set method for the inferred dimension value in a variable.
 """
-setIPC!(varid::State, val::AbstractVector{<:Real}) = varid.infoPerCoord = val
+setIPC!(varid::State, val::AbstractVector{<:Real}) = varid.observability = val
 function setIPC!(
   vari::VariableCompute,
   val::AbstractVector{<:Real},
@@ -330,7 +330,7 @@ end
 Get a ManifoldKernelDensity estimate from variable node data.
 """
 function getBelief(vnd::State)
-  return manikde!(getManifold(getVariableType(vnd)), getVal(vnd); bw = getBW(vnd)[:, 1])
+  return manikde!(getManifold(getStateKind(vnd)), getVal(vnd); bw = getBW(vnd)[:, 1])
 end
 
 function getBelief(v::VariableCompute, solvekey::Symbol = :default)
@@ -374,7 +374,7 @@ function DefaultNodeDataParametric(
   dims::Int,
   variableType::StateType;
   initialized::Bool = true,
-  dontmargin::Bool = false,
+  # dontmargin::Bool = false,
   solveKey::Symbol = :parametric
 )
   # this should be the only function allocating memory for the node points
@@ -392,25 +392,20 @@ function DefaultNodeDataParametric(
     #                         gbw2, Symbol[], sp,
     #                         dims, false, :_null, Symbol[], variableType, true, 0.0, false, dontmargin)
   else
-    # dimIDs = round.(Int, range(dodims; stop = dodims + dims - 1, length = dims))
     ϵ = getPointIdentity(variableType)
-    return State(variableType;
-      id=nothing,
+    return State(solveKey, variableType;
       val=[ϵ],
       bw=zeros(dims, dims),
       # Symbol[],
-      # dimIDs,
-      dims,
       # false,
       # :_null,
       # Symbol[],
       initialized=false,
-      infoPerCoord=zeros(dims),
-      ismargin=false,
-      dontmargin,
+      observability=zeros(dims),
+      marginalized=false,
+      # dontmargin,
       # 0,
       # 0,
-      solveKey,
     )
   end
 end
@@ -445,17 +440,17 @@ Notes
 function setDefaultNodeData!(
   v::VariableCompute,
   dodims::Int,
-  N::Int,
-  dims::Int=getDimension(v);
+  N::Int;
   solveKey::Symbol = :default,
   gt = Dict(),
   initialized::Bool = true,
-  dontmargin::Bool = false,
+  # dontmargin::Bool = false,
   varType = nothing,
 )
   #
   # TODO review and refactor this function, exists as legacy from pre-v0.3.0
   # this should be the only function allocating memory for the node points (unless number of points are changed)
+  dims = getDimension(v)
   data = nothing
   isinit = false
   sp = Int[0;]
@@ -479,23 +474,23 @@ function setDefaultNodeData!(
   # make and set the new solverData
   mergeState!(
     v,
-    State(varType;
-      id=nothing,
+    State(solveKey, varType;
+      # id=nothing,
       val,
       bw,
       # Symbol[],
       # sp,
-      dims,
+      # dims,
       # false,
       # :_null,
       # Symbol[],
       initialized=isinit,
-      infoPerCoord=zeros(getDimension(v)),
-      ismargin=false,
-      dontmargin,
+      observability=zeros(getDimension(v)),
+      marginalized=false,
+      # dontmargin,
       # 0,
       # 0,
-      solveKey,
+      
     )
   )
   return nothing
@@ -539,7 +534,7 @@ function setVariableRefence!(
     false,
     :_null,
     Symbol[],
-    getVariableType(var),
+    getStateKind(var),
     true,
     zeros(getDimension(var)),
     false,
@@ -583,7 +578,7 @@ function addVariable!(
   solvable::Int = 1,
   timestamp::Union{DateTime, ZonedDateTime} = now(localzone()),
   nanosecondtime::Union{Nanosecond, Int64, Nothing} = Nanosecond(0),
-  dontmargin::Bool = false,
+  # dontmargin::Bool = false,
   tags::Vector{Symbol} = Symbol[],
   smalldata = Dict{Symbol, DFG.MetadataTypes}(),
   checkduplicates::Bool = true,
@@ -600,24 +595,28 @@ function addVariable!(
     label,
     varType;
     tags = Set(tags),
-    smallData = smalldata,
+    bloblets = smalldata,
     solvable = solvable,
     timestamp = _zonedtime(timestamp),
-    nstime = Nanosecond(nanosecondtime),
+    steadytime = Nanosecond(nanosecondtime),
   )
 
   (:default in initsolvekeys) && setDefaultNodeData!(
     v,
     0,
-    N,
-    getDimension(varType);
+    N;
     initialized = false,
     varType = varType,
-    dontmargin = dontmargin,
+    # dontmargin = dontmargin,
   ) # dodims
 
   (:parametric in initsolvekeys) &&
-    setDefaultNodeDataParametric!(v, varType; initialized = false, dontmargin = dontmargin)
+    setDefaultNodeDataParametric!(
+      v,
+      varType;
+      initialized = false,
+      # dontmargin = dontmargin
+    )
 
   return DFG.addVariable!(dfg, v)
 end
@@ -718,7 +717,7 @@ function getDefaultFactorData(
   eliminated::Bool = false,
   potentialused::Bool = false,
   edgeIDs = Int[],
-  solveInProgress = 0,
+  # solveInProgress = 0,
   inflation::Real = getSolverParams(dfg).inflation,
   _blockRecursion::Bool = false,
   keepCalcFactor::Bool = false,
@@ -749,7 +748,7 @@ function getDefaultFactorData(
     multihypo,
     ccwl.hyporecipe.certainhypo,
     nullhypo,
-    solveInProgress,
+    # solveInProgress,
     inflation,
   )
 

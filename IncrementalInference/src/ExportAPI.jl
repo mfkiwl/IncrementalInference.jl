@@ -95,9 +95,9 @@ export CSMHistory,
   getVariableOrder,
   isVariable,
   isFactor,
-  getFactorType,
+  getObservation,
   getSofttype,
-  getVariableType,
+  getStateKind,
   getLogPath,
   joinLogPath,
   lsfPriors,
@@ -299,7 +299,7 @@ export ContinuousScalar, ContinuousEuclid # TODO figure out if this will be depr
 export Circular, Circle
 
 # serializing distributions
-export packDistribution, unpackDistribution
+export pack, unpack
 export PackedCategorical #, PackedDiscreteNonParametric
 export PackedUniform, PackedNormal
 export PackedZeroMeanDiagNormal,

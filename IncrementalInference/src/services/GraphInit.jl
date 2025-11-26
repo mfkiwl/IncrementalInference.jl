@@ -27,10 +27,10 @@ function makeSolverData!(
   count = 0
   for vl in varList
     v = getVariable(dfg,vl)
-    varType = getVariableType(v) |> IIF._variableType
+    varType = getStateKind(v) |> IIF._variableType
     vsolveKeys = listSolveKeys(dfg,vl)
     if solveKey != :parametric && !(solveKey in vsolveKeys)
-        IIF.setDefaultNodeData!(v, 0, getSolverParams(dfg).N, getDimension(varType); initialized=false, varType, solveKey) # dodims
+        IIF.setDefaultNodeData!(v, 0, getSolverParams(dfg).N; initialized=false, varType, solveKey) # dodims
         count += 1
     elseif solveKey == :parametric && !(:parametric in vsolveKeys)
         # global doinit = true
@@ -287,23 +287,22 @@ function initVariable!(
   variable::VariableCompute,
   ptsArr::ManifoldKernelDensity,
   solveKey::Symbol = :default;
-  dontmargin::Bool = false,
+  # dontmargin::Bool = false,
   N::Int = length(getPoints(ptsArr)),
 )
   #
   @debug "initVariable! $(getLabel(variable))"
   if !(solveKey in listSolveKeys(variable))
     @debug "$(getLabel(variable)) needs new VND solveKey=$(solveKey)"
-    varType = getVariableType(variable)
+    varType = getStateKind(variable)
     setDefaultNodeData!(
       variable,
       0,
-      N,
-      getDimension(varType);
+      N;
       solveKey = solveKey,
       initialized = false,
       varType = varType,
-      dontmargin = dontmargin,
+      # dontmargin = dontmargin,
     )
   end
   setValKDE!(variable, ptsArr, true; solveKey = solveKey)
@@ -314,12 +313,15 @@ function initVariable!(
   label::Symbol,
   belief::ManifoldKernelDensity,
   solveKey::Symbol = :default;
-  dontmargin::Bool = false,
+  # dontmargin::Bool = false,
   N::Int = getSolverParams(dfg).N,
 )
   #
   variable = getVariable(dfg, label)
-  initVariable!(variable, belief, solveKey; dontmargin = dontmargin, N = N)
+  initVariable!(variable, belief, solveKey;
+    # dontmargin = dontmargin,
+    N = N
+  )
   return nothing
 end
 
@@ -347,7 +349,7 @@ function initVariable!(
   if solveKey == :parametric
     μ, iΣ = getMeasurementParametric(samplable_belief)
     vnd = getState(variable, solveKey)
-    vnd.val[1] = getPoint(getVariableType(variable), μ)
+    vnd.val[1] = getPoint(getStateKind(variable), μ)
     vnd.bw .= inv(iΣ)
     vnd.initialized = true
   else
@@ -369,7 +371,7 @@ function initVariable!(
   pts = propagateBelief(dfg, label, usefcts; solveKey = solveKey)[1]
   # pts = predictbelief(dfg, label, usefcts; solveKey = solveKey)[1]
   vert = getVariable(dfg, label)
-  Xpre = manikde!(getManifold(getVariableType(vert)), pts)
+  Xpre = manikde!(getManifold(getStateKind(vert)), pts)
   return initVariable!(vert, Xpre, solveKey; N, kwargs...)
   # setValKDE!(vert, Xpre, true, solveKey=solveKey)
   # return nothing
@@ -502,13 +504,13 @@ function initAll!(
 )
   #
   # allvarnodes = getVariables(dfg)
-  syms = intersect(getAddHistory(dfg), ls(dfg; solvable = solvable))
+  syms = intersect(DFG.getAddHistory(dfg), ls(dfg; solvable = solvable))
   # syms = ls(dfg, solvable=solvable) # |> sortDFG
 
   # May have to first add the solveKey VNDs if they are not yet available
   for sym in syms
     vari = getVariable(dfg, sym)
-    varType = getVariableType(vari) |> _variableType
+    varType = DFG.getStateKind(vari)
     # does SolverData exist for this solveKey?
     vsolveKeys = listSolveKeys(vari)
     # FIXME, likely some consolidation needed with #1637
@@ -517,8 +519,7 @@ function initAll!(
       setDefaultNodeData!(
         vari,
         0,
-        N,
-        getDimension(varType);
+        N;
         solveKey,
         initialized = false,
         varType,

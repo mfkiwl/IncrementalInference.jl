@@ -19,15 +19,15 @@ addFactor!(fg, [:a], Prior(Normal(10,1)), graphinit=false)
 addFactor!(fg, [:a;:b], LinearRelative(Normal(10,1)), graphinit=false)
 
 
-deleteVariableSolverData!(fg, :a, :default)
-deleteVariableSolverData!(fg, :b, :default)
+deleteState!(fg, :a, :default)
+deleteState!(fg, :b, :default)
 
 ##
 
 pts = sampleFactor(fg, :af1, 100)
 
-IIF.setDefaultNodeData!(getVariable(fg, :a), 0, 100, 1, solveKey=:testSolveKey, 
-                        initialized=false, varType=ContinuousScalar(), dontmargin=false)
+IIF.setDefaultNodeData!(getVariable(fg, :a), 0, 100; solveKey=:testSolveKey, 
+                        initialized=false, varType=ContinuousScalar())
 #
 
 initVariable!(fg, :a, pts, :testSolveKey)
@@ -36,8 +36,8 @@ initVariable!(fg, :a, pts, :testSolveKey)
 
 ##
 
-IIF.setDefaultNodeData!(getVariable(fg, :b), 0, 100, 1, solveKey=:testSolveKey, 
-                        initialized=false, varType=ContinuousScalar(), dontmargin=false)
+IIF.setDefaultNodeData!(getVariable(fg, :b), 0, 100; solveKey=:testSolveKey, 
+                        initialized=false, varType=ContinuousScalar())
 #
 
 

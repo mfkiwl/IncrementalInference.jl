@@ -1,3 +1,51 @@
+
+# moved here from DistributedFactorGraphs.jl, replace with new way.
+function typeModuleName(variableType::StateType)
+    Base.depwarn("typeModuleName is obsolete", :typeModuleName)
+    io = IOBuffer()
+    ioc = IOContext(io, :module => DistributedFactorGraphs)
+    show(ioc, typeof(variableType))
+    return String(take!(io))
+end
+
+"""
+    $(SIGNATURES)
+Get a type from the serialization module.
+"""
+function getTypeFromSerializationModule(_typeString::AbstractString)
+    @debug "DFG converting type string to Julia type" _typeString
+    try
+        # split the type at last `.`
+        split_st = split(_typeString, r"\.(?!.*\.)")
+        #if module is specified look for the module in main, otherwise use Main        
+        if length(split_st) == 2
+            m = getfield(Main, Symbol(split_st[1]))
+        else
+            m = Main
+        end
+        noparams = split(split_st[end], r"{")
+        ret = if 1 < length(noparams)
+            # fix #671, but does not work with specific module yet
+            bidx = findfirst(r"{", split_st[end])[1]
+            @error("getTypeFromSerializationModule eval obsolete")
+            Core.eval(m, Base.Meta.parse("$(noparams[1])$(split_st[end][bidx:end])"))
+        else
+            getfield(m, Symbol(split_st[end]))
+        end
+
+        return ret
+
+    catch ex
+        @error "Unable to deserialize type $(_typeString)"
+        io = IOBuffer()
+        showerror(io, ex, catch_backtrace())
+        err = String(take!(io))
+        @error(err)
+    end
+    return nothing
+end
+
+
 ## ================================================================================================
 ## Deprecated in v0.36
 ## ================================================================================================
@@ -161,7 +209,7 @@ setVariablePosteriorEstimates!(args...; kw...) = error("PPEs are obsolete (use `
 
 @deprecate calcPPE(
   var::VariableCompute,
-  varType::StateType = getVariableType(var);
+  varType::StateType = getStateKind(var);
   solveKey::Symbol = :default,
   kwargs...,
 ) calcMeanMaxSuggested(var, solveKey)
@@ -246,7 +294,7 @@ end
 # function ManifoldsVector(fg::AbstractDFG, varIds::Vector{Symbol})
 #   manis = Bool[]
 #   for k = varIds
-#     push!(manis, getVariableType(fg, k) |> getManifold)
+#     push!(manis, getStateKind(fg, k) |> getManifold)
 #   end
 #   ManifoldsVector(manis)
 # end
@@ -309,7 +357,7 @@ function solveGraphParametric2(
 
   for vId in varIds
     p = getState(fg, vId, solvekey).val[1]
-    flatvar[vId] = getCoordinates(getVariableType(fg, vId), p)
+    flatvar[vId] = getCoordinates(getStateKind(fg, vId), p)
   end
 
   initValues = flatvar.X
@@ -379,7 +427,7 @@ end
 # ) where {N_, F <: AbstractRelativeRoots, S, T}
 #   #
 #   # error("<:AbstractRelativeRoots is obsolete, use one of the other <:AbstractRelative types instead.")
-#   # TODO get xDim = getDimension(getVariableType(Xi[sfidx])) but without having Xi
+#   # TODO get xDim = getDimension(getStateKind(Xi[sfidx])) but without having Xi
 #   if testshuffle || ccwl.partial
 #     error(
 #       "<:AbstractRelativeRoots factors with less or more measurement dimensions than variable dimensions have been discontinued, rather use <:AbstractManifoldMinimize.",
@@ -442,8 +490,8 @@ function Base.getproperty(ccw::CommonConvWrapper, f::Symbol)
     error("CommonConvWrapper.params is deprecated, use .varValsAll instead")
     return ccw.varValsAll[]
   elseif f == :vartypes
-    @warn "CommonConvWrapper.vartypes is deprecated, use typeof.(getVariableType.(ccw.fullvariables) instead" maxlog=3
-    return typeof.(getVariableType.(ccw.fullvariables))
+    @warn "CommonConvWrapper.vartypes is deprecated, use typeof.(getStateKind.(ccw.fullvariables) instead" maxlog=3
+    return typeof.(getStateKind.(ccw.fullvariables))
   elseif f == :hypotheses
     @warn "CommonConvWrapper.hypotheses is now under ccw.hyporecipe.hypotheses" maxlog=5
     return ccw.hyporecipe.hypotheses

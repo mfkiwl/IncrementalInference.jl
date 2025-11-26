@@ -175,17 +175,16 @@ function presolveChecklist_StateMachine(csmc::CliqStateMachineContainer)
         csmc,
         "CSM-0b create empty data for $(getLabel(var)) on solveKey=$(csmc.solveKey)",
       )
-      varType = getVariableType(var)
+      varType = getStateKind(var)
       # FIXME check the marginalization requirements
       setDefaultNodeData!(
         var,
         0,
-        getSolverParams(csmc.cliqSubFg).N,
-        getDimension(varType);
+        getSolverParams(csmc.cliqSubFg).N;
         solveKey = csmc.solveKey,
         initialized = false,
         varType = varType,
-        dontmargin = false,
+        # dontmargin = false,
       )
       #
       @info "create vnd solveKey" csmc.solveKey N

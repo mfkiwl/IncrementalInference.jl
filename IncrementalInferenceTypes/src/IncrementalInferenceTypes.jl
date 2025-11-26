@@ -7,6 +7,7 @@ using LieGroups
 using LieGroups: TranslationGroup, ℝ
 using Distributions
 using StaticArrays
+using LinearAlgebra
 import StructTypes
 
 using Dates: now
@@ -66,8 +67,8 @@ include("factors/DefaultPrior.jl")
 include("factors/Circular.jl")
 
 # Distribution Serialization
-include("serialization/entities/SerializingDistributions.jl")
-include("serialization/services/SerializingDistributions.jl")
+# include("serialization/entities/SerializingDistributions.jl")
+# include("serialization/services/SerializingDistributions.jl")
 
 # solver params
 include("solverparams/SolverParams.jl")
